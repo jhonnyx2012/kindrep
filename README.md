@@ -23,7 +23,7 @@
 ## Project Structure
 
 - `composeApp/` — Shared Kotlin Multiplatform & Compose Multiplatform UI, theme, mascots, DI, navigation, and `expect`/`actual` bridges (`commonMain`, `androidMain`, `iosMain`, `commonTest`)
-- `androidApp/` — Android application entry point (`com.jhonnybarrios.kindrep`) & adaptive 2B launcher icons
+- `androidApp/` — Android application entry point (`com.jhonnyb.kindrep`) & adaptive 2B launcher icons
 - `iosApp/` — Xcode project wrapping the shared `ComposeApp` framework for iOS
 
 ## Development

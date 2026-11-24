@@ -11,7 +11,7 @@ plugins {
 
 kotlin {
     android {
-        namespace = "com.jhonnybarrios.kindrep.shared"
+        namespace = "com.jhonnyb.kindrep.shared"
         compileSdk = libs.versions.android.compileSdk.get().toInt()
         minSdk = libs.versions.android.minSdk.get().toInt()
 
@@ -77,5 +77,5 @@ kotlin {
 
 compose.resources {
     publicResClass = true
-    packageOfResClass = "com.jhonnybarrios.kindrep.generated.resources"
+    packageOfResClass = "com.jhonnyb.kindrep.generated.resources"
 }

@@ -6,11 +6,11 @@ plugins {
 }
 
 android {
-    namespace = "com.jhonnybarrios.kindrep"
+    namespace = "com.jhonnyb.kindrep"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
 
     defaultConfig {
-        applicationId = "com.jhonnybarrios.kindrep"
+        applicationId = "com.jhonnyb.kindrep"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 1
