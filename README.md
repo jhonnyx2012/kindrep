@@ -9,7 +9,7 @@
 ## Tech Stack
 
 - **Shared UI:** Compose Multiplatform (`1.12.2`) + Material 3 (`Warm Earth` Light & `Soft Stone D3` Dark themes)
-- **Language & Build:** Kotlin `2.3.20`, Android Gradle Plugin `9.5.0`, Gradle `9.7.1`
+- **Language & Build:** Kotlin `2.4.20`, Android Gradle Plugin `9.5.0`, Gradle `9.7.1`
 - **Typography & Shapes:** Bundled **Nunito** (`Regular`, `Medium`, `SemiBold`, `Bold` with `tnum` tabular numerals) & tuned `18 / 14 / 12 / 9dp` radii
 - **Dependency Injection:** **Koin** (`4.2.2`) + **Koin Compiler Plugin** (`io.insert-koin.compiler.plugin`)
 - **Navigation & State:** Type-safe `navigation-compose` (`2.10.0`), AndroidX `lifecycle-viewmodel-compose` (`2.11.0`), Kotlin Coroutines & `StateFlow`
