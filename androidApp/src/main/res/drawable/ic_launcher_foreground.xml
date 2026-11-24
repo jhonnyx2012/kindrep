@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="100"
+    android:viewportHeight="100">
+    <!-- Adaptive icon safe zone centered inside 100x100 -->
+    <group
+        android:scaleX="0.62"
+        android:scaleY="0.62"
+        android:translateX="19"
+        android:translateY="20">
+        <!-- Asymmetric warm terracotta ear -->
+        <path
+            android:fillColor="#00000000"
+            android:pathData="M65,42 C70,28 79,23 82,27 C85,31 78,41 70,46"
+            android:strokeWidth="6"
+            android:strokeColor="#E3A77D"
+            android:strokeLineCap="round"
+            android:strokeLineJoin="round" />
+        <!-- 2B Seated Forward-Bend Hare continuous stroke -->
+        <path
+            android:fillColor="#00000000"
+            android:pathData="M74,71 H33 C22,71 22,50 38,44 C48,40 55,43 59,44 C56,31 53,20 59,19 C64,18 67,31 65,44 C73,45 79,51 78,58 C77,63 71,64 66,64"
+            android:strokeWidth="6.4"
+            android:strokeColor="#F7F5F0"
+            android:strokeLineCap="round"
+            android:strokeLineJoin="round" />
+        <!-- Delicate terracotta tail dot -->
+        <path
+            android:fillColor="#E3A77D"
+            android:pathData="M20,66m-5.5,0a5.5,5.5 0,1 1,11 0a5.5,5.5 0,1 1,-11 0" />
+    </group>
+</vector>
