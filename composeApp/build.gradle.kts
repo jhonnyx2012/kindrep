@@ -105,6 +105,10 @@ abstract class VerifyUiArchitectureTask : DefaultTask() {
     @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val sourceRoot: DirectoryProperty
 
+    @get:InputDirectory
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    abstract val androidSourceRoot: DirectoryProperty
+
     @TaskAction
     fun verify() {
         val rootDirectory = sourceRoot.get().asFile
@@ -117,6 +121,19 @@ abstract class VerifyUiArchitectureTask : DefaultTask() {
         val previewAnnotationPattern = Regex("""@Preview\b""")
         val hardcodedTextLiteralPattern = Regex("""\bText\s*\(\s*(?:text\s*=\s*)?"[^"]+"""")
         val onIntentSignaturePattern = Regex("""\bfun\s+onIntent\s*\(""")
+        val scrollSupportPattern = Regex("""\b(ResponsiveScrollableColumn|verticalScroll|LazyColumn|LazyVerticalGrid)\b""")
+
+        val androidMainDirectory = androidSourceRoot.get().asFile
+        if (androidMainDirectory.exists()) {
+            androidMainDirectory.walkTopDown()
+                .filter { it.isFile && it.extension == "kt" }
+                .forEach { file ->
+                    if (file.readText().contains("SCREEN_ORIENTATION_PORTRAIT")) {
+                        val relativeAndroidPath = file.relativeTo(androidMainDirectory).invariantSeparatorsPath
+                        violations += "androidMain/$relativeAndroidPath uses SCREEN_ORIENTATION_PORTRAIT; never lock screens to portrait so phones and tablets rotate freely."
+                    }
+                }
+        }
 
         kotlinFiles.forEach { file ->
             val relativePath = file.relativeTo(rootDirectory).invariantSeparatorsPath
@@ -137,6 +154,10 @@ abstract class VerifyUiArchitectureTask : DefaultTask() {
                 relativePath.startsWith("ui/") || relativePath.startsWith("navigation/")
             if (isUserInterfaceOrNavigationFile && hardcodedTextLiteralPattern.containsMatchIn(content)) {
                 violations += "$relativePath contains a hardcoded Text(\"...\") string literal; localize user-facing text in composeResources/values/strings.xml."
+            }
+
+            if (relativePath.startsWith("ui/screens/") && !scrollSupportPattern.containsMatchIn(content)) {
+                violations += "$relativePath must support vertical scrolling (ResponsiveScrollableColumn, verticalScroll, or LazyColumn) for landscape compatibility."
             }
 
             val isVisualUserInterfaceFile =
@@ -165,8 +186,9 @@ abstract class VerifyUiArchitectureTask : DefaultTask() {
 
 val verifyUiArchitecture = tasks.register<VerifyUiArchitectureTask>("verifyUiArchitecture") {
     group = "verification"
-    description = "Verifies file size bounds, Model-View-Intent ViewModel entry points, string localization, and the single-@Preview-per-file rule."
+    description = "Verifies file size bounds, Model-View-Intent ViewModel entry points, string localization, landscape scrollability, and the single-@Preview-per-file rule."
     sourceRoot.set(layout.projectDirectory.dir("src/commonMain/kotlin/com/jhonnyb/kindrep"))
+    androidSourceRoot.set(layout.projectDirectory.dir("src/androidMain/kotlin/com/jhonnyb/kindrep"))
 }
 
 tasks.named("check") {

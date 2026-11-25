@@ -1,10 +1,7 @@
 package com.jhonnyb.kindrep.ui.screens.placeholder
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -19,6 +16,7 @@ import com.jhonnyb.kindrep.generated.resources.Res
 import com.jhonnyb.kindrep.generated.resources.exercise_picker_subtitle
 import com.jhonnyb.kindrep.generated.resources.exercise_picker_title
 import com.jhonnyb.kindrep.generated.resources.navigation_back_action
+import com.jhonnyb.kindrep.ui.components.ResponsiveScrollableColumn
 import com.jhonnyb.kindrep.ui.theme.KindrepTheme
 import com.jhonnyb.kindrep.ui.theme.LocalKindrepPalette
 import org.jetbrains.compose.resources.stringResource
@@ -32,11 +30,10 @@ fun UpcomingDetailScreen(
 ) {
     val palette = LocalKindrepPalette.current
 
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .safeDrawingPadding()
-            .padding(24.dp),
+    ResponsiveScrollableColumn(
+        modifier = modifier,
+        applySafeDrawingInsets = true,
+        contentPadding = PaddingValues(horizontal = 24.dp, vertical = 20.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         OutlinedButton(

@@ -2,12 +2,10 @@ package com.jhonnyb.kindrep.ui.screens.checkin
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -26,8 +24,10 @@ import com.jhonnyb.kindrep.generated.resources.Res
 import com.jhonnyb.kindrep.generated.resources.check_in_back_to_today
 import com.jhonnyb.kindrep.generated.resources.check_in_subtitle
 import com.jhonnyb.kindrep.generated.resources.check_in_title
+import com.jhonnyb.kindrep.ui.components.CompactFormMaxContentWidth
 import com.jhonnyb.kindrep.ui.components.KindrepBunnyMascot
 import com.jhonnyb.kindrep.ui.components.MascotPose
+import com.jhonnyb.kindrep.ui.components.ResponsiveScrollableColumn
 import com.jhonnyb.kindrep.ui.theme.KindrepTheme
 import com.jhonnyb.kindrep.ui.theme.LocalKindrepPalette
 import org.jetbrains.compose.resources.stringResource
@@ -38,16 +38,15 @@ fun PostSessionCheckInScreen(
     onDone: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .safeDrawingPadding()
-            .padding(24.dp),
+    ResponsiveScrollableColumn(
+        modifier = modifier,
+        maxContentWidth = CompactFormMaxContentWidth,
+        applySafeDrawingInsets = true,
+        contentPadding = PaddingValues(horizontal = 24.dp, vertical = 20.dp),
+        verticalArrangement = Arrangement.spacedBy(24.dp, Alignment.CenterVertically),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
     ) {
         CheckInCelebrationHeader(routineName = routineName)
-        Spacer(Modifier.height(28.dp))
         CheckInPrimaryButton(onClick = onDone)
     }
 }
@@ -59,13 +58,14 @@ private fun CheckInCelebrationHeader(routineName: String) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         KindrepBunnyMascot(
             pose = MascotPose.Celebration,
-            modifier = Modifier.size(width = 240.dp, height = 180.dp),
+            modifier = Modifier.size(width = 200.dp, height = 150.dp),
         )
-        Spacer(Modifier.height(16.dp))
+        Spacer(Modifier.height(12.dp))
         Text(
             text = stringResource(Res.string.check_in_title),
             style = MaterialTheme.typography.headlineLarge,
             color = palette.textPrimary,
+            textAlign = TextAlign.Center,
         )
         Spacer(Modifier.height(6.dp))
         Text(

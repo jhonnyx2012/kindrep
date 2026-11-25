@@ -6,15 +6,13 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -32,6 +30,7 @@ import com.jhonnyb.kindrep.generated.resources.today_streak_badge
 import com.jhonnyb.kindrep.navigation.TopLevelDestination
 import com.jhonnyb.kindrep.ui.components.CompanionStreakCard
 import com.jhonnyb.kindrep.ui.components.MainNavigationScaffold
+import com.jhonnyb.kindrep.ui.components.ResponsiveScrollableColumn
 import com.jhonnyb.kindrep.ui.components.RoutineSummaryCard
 import com.jhonnyb.kindrep.ui.theme.KindrepTheme
 import com.jhonnyb.kindrep.ui.theme.LocalKindrepPalette
@@ -45,11 +44,9 @@ fun TodayHomeScreen(
     onStartSession: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(horizontal = 20.dp, vertical = 16.dp),
+    ResponsiveScrollableColumn(
+        modifier = modifier,
+        contentPadding = PaddingValues(horizontal = 20.dp, vertical = 16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         TodayHeaderRow(

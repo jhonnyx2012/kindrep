@@ -14,7 +14,14 @@ description: "Legible Composable decomposition, Compose recomposition & phase-de
   - Never bundle multiple screens or unrelated public widgets into one file (max 700 lines per file).
 - **Exactly One `@Preview` Per Visual File:** Every file under `ui/components/`, `ui/dialogs/`, and `ui/screens/` must declare **exactly one** `@Preview` function wrapped in `KindrepTheme`. Guard native views (`LoopingExerciseVideo`) with `LocalInspectionMode.current` so previews always render deterministically.
 
-## 2. Recomposition & Rendering Performance Guardrails
+## 2. Landscape, Tablet & Window-Inset Compatibility (Mandatory)
+Every screen in Kindrep must feel natural in **both Portrait and Landscape** across phones, foldables, and tablets—even before dedicated multi-pane tablet layouts exist:
+1. **Never Lock Non-Player Screens to Portrait:** All standard screens (`Welcome`, `Today`, `Routines`, `Progress`, `RoutineEditor`, `ExerciseLibraryPicker`, `PostSessionCheckIn`) must rotate freely (`SCREEN_ORIENTATION_UNSPECIFIED`). Only the Guided Session Player invokes `PreferLandscapeOrientationEffect()`, restoring `UNSPECIFIED` on exit (`:composeApp:verifyUiArchitecture` forbids `SCREEN_ORIENTATION_PORTRAIT`).
+2. **Vertical Scroll Resilience Everywhere:** Landscape phones and split-screen tablets often have `< 400.dp` of vertical height. Every screen in `ui/screens/` **must** support vertical scrolling (`ResponsiveScrollableColumn`, `verticalScroll`, or `LazyColumn`)—never trap primary actions below a non-scrollable `Column` or use `Spacer(Modifier.weight(1f))` without bounded/scrollable safety (`:composeApp:verifyUiArchitecture` enforces scroll support in every screen file).
+3. **Centered Readable Max-Width (`ResponsiveScrollableColumn`):** Never stretch single-column cards, forms, primary buttons, or bottom navigation pills full-bleed across `1000.dp+` tablet widths. Constrain single-column screen content to a centered `maxWidth` (`560.dp–640.dp` via `ResponsiveScrollableColumn`, keeping scroll gestures active across the outer full-width container) and cap inner bottom-bar tab rows similarly.
+4. **Safe Drawing & Display Cutout Insets:** Respect `WindowInsets.safeDrawing` (including **horizontal** insets in landscape so camera cutouts and system bars never overlap headers, cards, or navigation bars).
+
+## 3. Recomposition & Rendering Performance Guardrails
 Avoid unnecessary recompositions and frame drops across Android and iOS:
 1. **Stable Inputs Only:** Pass `@Immutable` / `@Stable` UI states, primitives, or `:domain` models (trusted via `compose_stability.conf`). Never pass `MutableList`, `Flow`, `StateFlow`, or `ViewModel` instances into stateless screen or component composables—hoist `collectAsStateWithLifecycle()` to the route boundary.
 2. **Defer High-Frequency State Reads to Layout or Draw Phases:**
@@ -27,11 +34,11 @@ Avoid unnecessary recompositions and frame drops across Android and iOS:
    - Wrap high-frequency-to-boolean derivations (e.g., `listState.firstVisibleItemIndex > 0`) in `remember { derivedStateOf { ... } }`.
    - Every `LazyColumn` / `LazyRow` `items(...)` call **must** specify a stable `key = { it.identifier }` (and `contentType` when heterogeneous) so list updates skip unchanged rows.
 
-## 3. Localization, Naming & Constants
+## 4. Localization, Naming & Constants
 - **100% Localized User Interface Text:** Every visible string in `ui/` and `navigation/` must live in `composeResources/values/strings.xml` and resolve via `stringResource(Res.string.*)`. `:composeApp:verifyUiArchitecture` rejects hardcoded `Text("...")` literals.
 - **Expressive, Acronym-Free Naming & Constants:** Use spelled-out identifiers (`centerX`, `canvasWidth`, `routineIdentifier`, `navigationController`) instead of abbreviations (`cx`, `w`, `id`, `nav`). Extract repeatable keys into constant objects only when reused.
 
-## 4. Locked Kindrep Design System Invariants
+## 5. Locked Kindrep Design System Invariants
 - **Semantic Palette (`KindrepPalette.kt`):** Read colors via `LocalKindrepPalette.current` (`WarmEarthPalette` Light / `SoftStoneD3Palette` Dark) and shapes/typography via `MaterialTheme`.
 - **Typography & Legibility:** Bundled `Nunito` with tabular numerals (`fontFeatureSettings = "tnum"`). Routine card titles use `Bold` (`20–21.sp`), exercise row titles use `Regular` (`16.sp`), minimum `14.sp` labels, and `56.dp+` primary touch targets.
 - **Corner Radii:** Modals/sheets `18.dp`, cards / primary buttons / active navigation pill `14.dp`, inner rows/inputs `12.dp`, badges/chips `9.dp`.

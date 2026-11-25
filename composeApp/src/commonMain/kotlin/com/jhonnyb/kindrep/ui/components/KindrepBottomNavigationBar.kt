@@ -8,11 +8,16 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -56,10 +61,22 @@ fun KindrepBottomNavigationBar(
     ) {
         Column {
             NavigationTopBorder(borderColor = palette.border)
-            NavigationTabRow(
-                selectedDestination = selectedDestination,
-                onSelectDestination = onSelectDestination,
-            )
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .windowInsetsPadding(
+                        WindowInsets.safeDrawing.only(
+                            WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom,
+                        ),
+                    ),
+                contentAlignment = Alignment.Center,
+            ) {
+                NavigationTabRow(
+                    selectedDestination = selectedDestination,
+                    onSelectDestination = onSelectDestination,
+                    modifier = Modifier.widthIn(max = CompactFormMaxContentWidth),
+                )
+            }
         }
     }
 }
@@ -78,11 +95,11 @@ private fun NavigationTopBorder(borderColor: Color) {
 private fun NavigationTabRow(
     selectedDestination: TopLevelDestination,
     onSelectDestination: (TopLevelDestination) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     Row(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
-            .navigationBarsPadding()
             .padding(horizontal = 12.dp, vertical = 8.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically,

@@ -17,7 +17,7 @@ import com.jhonnyb.kindrep.generated.resources.routines_create_action
 import com.jhonnyb.kindrep.generated.resources.routines_subtitle
 import com.jhonnyb.kindrep.generated.resources.routines_title
 import com.jhonnyb.kindrep.platform.KeepScreenAwakeEffect
-import com.jhonnyb.kindrep.platform.ScreenOrientationEffect
+import com.jhonnyb.kindrep.platform.PreferLandscapeOrientationEffect
 import com.jhonnyb.kindrep.presentation.shell.ApplicationShellIntent
 import com.jhonnyb.kindrep.presentation.shell.ApplicationShellState
 import com.jhonnyb.kindrep.ui.components.MainNavigationScaffold
@@ -46,14 +46,12 @@ fun KindrepNavigationHost(
         },
     ) {
         composable<KindrepDestination.Welcome> {
-            ScreenOrientationEffect(landscape = false)
             WelcomeDisclaimerScreen(
                 onAccept = { onShellIntent(ApplicationShellIntent.AcceptDisclaimer) },
             )
         }
 
         composable<KindrepDestination.Today> {
-            ScreenOrientationEffect(landscape = false)
             MainNavigationScaffold(
                 selectedDestination = TopLevelDestination.TODAY,
                 onSelectDestination = { destination ->
@@ -74,7 +72,6 @@ fun KindrepNavigationHost(
         }
 
         composable<KindrepDestination.Routines> {
-            ScreenOrientationEffect(landscape = false)
             MainNavigationScaffold(
                 selectedDestination = TopLevelDestination.ROUTINES,
                 onSelectDestination = { destination ->
@@ -95,7 +92,6 @@ fun KindrepNavigationHost(
         }
 
         composable<KindrepDestination.Progress> {
-            ScreenOrientationEffect(landscape = false)
             MainNavigationScaffold(
                 selectedDestination = TopLevelDestination.PROGRESS,
                 onSelectDestination = { destination ->
@@ -110,7 +106,6 @@ fun KindrepNavigationHost(
         }
 
         composable<KindrepDestination.RoutineEditor> { backStackEntry ->
-            ScreenOrientationEffect(landscape = false)
             val destination = backStackEntry.toRoute<KindrepDestination.RoutineEditor>()
             UpcomingDetailScreen(
                 title = stringResource(
@@ -126,7 +121,6 @@ fun KindrepNavigationHost(
         }
 
         composable<KindrepDestination.ExerciseLibraryPicker> {
-            ScreenOrientationEffect(landscape = false)
             UpcomingDetailScreen(
                 title = stringResource(Res.string.exercise_picker_title),
                 subtitle = stringResource(Res.string.exercise_picker_subtitle),
@@ -136,7 +130,7 @@ fun KindrepNavigationHost(
 
         composable<KindrepDestination.GuidedSessionPlayer> { backStackEntry ->
             val destination = backStackEntry.toRoute<KindrepDestination.GuidedSessionPlayer>()
-            ScreenOrientationEffect(landscape = true)
+            PreferLandscapeOrientationEffect()
             KeepScreenAwakeEffect(enabled = true)
             GuidedSessionPlayerScreen(
                 routineIdentifier = destination.routineIdentifier,
@@ -155,7 +149,6 @@ fun KindrepNavigationHost(
         }
 
         composable<KindrepDestination.PostSessionCheckIn> { backStackEntry ->
-            ScreenOrientationEffect(landscape = false)
             val destination = backStackEntry.toRoute<KindrepDestination.PostSessionCheckIn>()
             PostSessionCheckInScreen(
                 routineName = destination.routineName,

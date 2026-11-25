@@ -3,16 +3,13 @@ package com.jhonnyb.kindrep.ui.screens.welcome
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
@@ -33,8 +30,10 @@ import com.jhonnyb.kindrep.generated.resources.welcome_disclaimer_point_stop_on_
 import com.jhonnyb.kindrep.generated.resources.welcome_privacy_note
 import com.jhonnyb.kindrep.generated.resources.welcome_subtitle
 import com.jhonnyb.kindrep.generated.resources.welcome_title
+import com.jhonnyb.kindrep.ui.components.CompactFormMaxContentWidth
 import com.jhonnyb.kindrep.ui.components.KindrepBunnyMascot
 import com.jhonnyb.kindrep.ui.components.MascotPose
+import com.jhonnyb.kindrep.ui.components.ResponsiveScrollableColumn
 import com.jhonnyb.kindrep.ui.theme.KindrepTheme
 import com.jhonnyb.kindrep.ui.theme.LocalKindrepPalette
 import org.jetbrains.compose.resources.StringResource
@@ -45,20 +44,16 @@ fun WelcomeDisclaimerScreen(
     onAccept: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .safeDrawingPadding()
-            .padding(horizontal = 24.dp, vertical = 20.dp)
-            .verticalScroll(rememberScrollState()),
+    ResponsiveScrollableColumn(
+        modifier = modifier,
+        maxContentWidth = CompactFormMaxContentWidth,
+        applySafeDrawingInsets = true,
+        contentPadding = PaddingValues(horizontal = 24.dp, vertical = 20.dp),
+        verticalArrangement = Arrangement.spacedBy(24.dp, Alignment.CenterVertically),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Spacer(Modifier.height(24.dp))
         WelcomeHeroHeader()
-        Spacer(Modifier.height(28.dp))
         DisclaimerSummaryCard()
-        Spacer(Modifier.weight(1f))
-        Spacer(Modifier.height(24.dp))
         WelcomeActionFooter(onAccept = onAccept)
     }
 }
@@ -70,9 +65,9 @@ private fun WelcomeHeroHeader() {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         KindrepBunnyMascot(
             pose = MascotPose.Welcome,
-            modifier = Modifier.size(width = 240.dp, height = 180.dp),
+            modifier = Modifier.size(width = 200.dp, height = 150.dp),
         )
-        Spacer(Modifier.height(16.dp))
+        Spacer(Modifier.height(12.dp))
         Text(
             text = stringResource(Res.string.welcome_title),
             style = MaterialTheme.typography.headlineLarge,
@@ -153,6 +148,7 @@ private fun WelcomeActionFooter(onAccept: () -> Unit) {
             text = stringResource(Res.string.welcome_privacy_note),
             style = MaterialTheme.typography.bodyMedium,
             color = palette.textMuted,
+            textAlign = TextAlign.Center,
         )
     }
 }

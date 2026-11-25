@@ -12,7 +12,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
@@ -38,6 +41,8 @@ import com.jhonnyb.kindrep.ui.theme.KindrepTheme
 import com.jhonnyb.kindrep.ui.theme.LocalKindrepPalette
 import org.jetbrains.compose.resources.stringResource
 
+private val MaxPlayerStageWidth = 1120.dp
+
 @Composable
 fun GuidedSessionPlayerScreen(
     routineIdentifier: String,
@@ -47,20 +52,27 @@ fun GuidedSessionPlayerScreen(
 ) {
     val palette = LocalKindrepPalette.current
 
-    Row(
+    Box(
         modifier = modifier
             .fillMaxSize()
             .background(palette.canvas)
             .safeDrawingPadding()
             .padding(16.dp),
-        horizontalArrangement = Arrangement.spacedBy(16.dp),
-        verticalAlignment = Alignment.CenterVertically,
+        contentAlignment = Alignment.Center,
     ) {
-        ExerciseVideoStage(routineIdentifier = routineIdentifier)
-        PlayerControlPanel(
-            onFinishToCheckIn = onFinishToCheckIn,
-            onExit = onExit,
-        )
+        Row(
+            modifier = Modifier
+                .widthIn(max = MaxPlayerStageWidth)
+                .fillMaxSize(),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            ExerciseVideoStage(routineIdentifier = routineIdentifier)
+            PlayerControlPanel(
+                onFinishToCheckIn = onFinishToCheckIn,
+                onExit = onExit,
+            )
+        }
     }
 }
 
@@ -94,8 +106,9 @@ private fun RowScope.PlayerControlPanel(
     Column(
         modifier = Modifier
             .weight(1f)
-            .fillMaxHeight(),
-        verticalArrangement = Arrangement.SpaceBetween,
+            .fillMaxHeight()
+            .verticalScroll(rememberScrollState()),
+        verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
     ) {
         PlayerHeaderRow(onExit = onExit)
         RepetitionCounterSection()
@@ -116,6 +129,7 @@ private fun PlayerHeaderRow(onExit: () -> Unit) {
             text = stringResource(Res.string.player_sample_exercise_heading),
             style = MaterialTheme.typography.titleLarge,
             color = palette.textPrimary,
+            modifier = Modifier.weight(1f),
         )
         TextButton(onClick = onExit) {
             Text(
@@ -130,7 +144,7 @@ private fun PlayerHeaderRow(onExit: () -> Unit) {
 private fun RepetitionCounterSection() {
     val palette = LocalKindrepPalette.current
 
-    Column {
+    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
         Text(
             text = stringResource(Res.string.player_sample_repetition_counter),
             style = MaterialTheme.typography.displayLarge,

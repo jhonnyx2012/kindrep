@@ -4,8 +4,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 
 @Composable
-actual fun ScreenOrientationEffect(landscape: Boolean) {
-    DisposableEffect(landscape) {
+actual fun PreferLandscapeOrientationEffect() {
+    DisposableEffect(Unit) {
         onDispose {}
     }
 }
