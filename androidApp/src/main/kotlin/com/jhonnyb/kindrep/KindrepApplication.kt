@@ -1,13 +1,13 @@
 package com.jhonnyb.kindrep
 
 import android.app.Application
-import com.jhonnyb.kindrep.di.initKoin
+import com.jhonnyb.kindrep.dependencyinjection.initializeDependencyInjection
 import org.koin.android.ext.koin.androidContext
 
 class KindrepApplication : Application() {
     override fun onCreate() {
         super.onCreate()
-        initKoin {
+        initializeDependencyInjection {
             androidContext(this@KindrepApplication)
         }
     }

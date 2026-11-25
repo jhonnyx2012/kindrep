@@ -1,0 +1,192 @@
+package com.jhonnyb.kindrep.navigation
+
+import androidx.compose.runtime.Composable
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.toRoute
+import com.jhonnyb.kindrep.domain.service.AudioCueKeys
+import com.jhonnyb.kindrep.generated.resources.Res
+import com.jhonnyb.kindrep.generated.resources.exercise_picker_subtitle
+import com.jhonnyb.kindrep.generated.resources.exercise_picker_title
+import com.jhonnyb.kindrep.generated.resources.progress_subtitle
+import com.jhonnyb.kindrep.generated.resources.progress_title
+import com.jhonnyb.kindrep.generated.resources.routine_editor_edit_title
+import com.jhonnyb.kindrep.generated.resources.routine_editor_new_title
+import com.jhonnyb.kindrep.generated.resources.routine_editor_subtitle
+import com.jhonnyb.kindrep.generated.resources.routines_create_action
+import com.jhonnyb.kindrep.generated.resources.routines_subtitle
+import com.jhonnyb.kindrep.generated.resources.routines_title
+import com.jhonnyb.kindrep.platform.KeepScreenAwakeEffect
+import com.jhonnyb.kindrep.platform.ScreenOrientationEffect
+import com.jhonnyb.kindrep.presentation.shell.ApplicationShellState
+import com.jhonnyb.kindrep.presentation.shell.ApplicationShellViewModel
+import com.jhonnyb.kindrep.ui.components.MainNavigationScaffold
+import com.jhonnyb.kindrep.ui.screens.checkin.PostSessionCheckInScreen
+import com.jhonnyb.kindrep.ui.screens.placeholder.UpcomingDetailScreen
+import com.jhonnyb.kindrep.ui.screens.placeholder.UpcomingTabScreen
+import com.jhonnyb.kindrep.ui.screens.player.GuidedSessionPlayerScreen
+import com.jhonnyb.kindrep.ui.screens.today.TodayHomeScreen
+import com.jhonnyb.kindrep.ui.screens.welcome.WelcomeDisclaimerScreen
+import org.jetbrains.compose.resources.stringResource
+
+@Composable
+fun KindrepNavigationHost(
+    navigationController: NavHostController,
+    shellState: ApplicationShellState,
+    shellViewModel: ApplicationShellViewModel,
+) {
+    NavHost(
+        navController = navigationController,
+        startDestination = if (shellState.hasAcceptedDisclaimer) {
+            KindrepDestination.Today
+        } else {
+            KindrepDestination.Welcome
+        },
+    ) {
+        composable<KindrepDestination.Welcome> {
+            ScreenOrientationEffect(landscape = false)
+            WelcomeDisclaimerScreen(
+                onAccept = {
+                    shellViewModel.acceptDisclaimer()
+                    navigationController.navigate(KindrepDestination.Today) {
+                        popUpTo(KindrepDestination.Welcome) { inclusive = true }
+                    }
+                },
+            )
+        }
+
+        composable<KindrepDestination.Today> {
+            ScreenOrientationEffect(landscape = false)
+            MainNavigationScaffold(
+                selectedDestination = TopLevelDestination.TODAY,
+                onSelectDestination = { destination ->
+                    navigateToTopLevel(navigationController, shellViewModel, TopLevelDestination.TODAY, destination)
+                },
+            ) {
+                TodayHomeScreen(
+                    streakDayCount = shellState.streakDayCount,
+                    routine = shellState.activeRoutine,
+                    onOpenSafetyNotice = { shellViewModel.setSafetyDialogVisible(true) },
+                    onStartSession = { routineIdentifier ->
+                        shellViewModel.triggerAudioCue(AudioCueKeys.READY)
+                        navigationController.navigate(
+                            KindrepDestination.GuidedSessionPlayer(routineIdentifier = routineIdentifier),
+                        )
+                    },
+                )
+            }
+        }
+
+        composable<KindrepDestination.Routines> {
+            ScreenOrientationEffect(landscape = false)
+            MainNavigationScaffold(
+                selectedDestination = TopLevelDestination.ROUTINES,
+                onSelectDestination = { destination ->
+                    navigateToTopLevel(navigationController, shellViewModel, TopLevelDestination.ROUTINES, destination)
+                },
+            ) {
+                UpcomingTabScreen(
+                    title = stringResource(Res.string.routines_title),
+                    subtitle = stringResource(Res.string.routines_subtitle),
+                    primaryActionLabel = stringResource(Res.string.routines_create_action),
+                    onPrimaryAction = {
+                        navigationController.navigate(KindrepDestination.RoutineEditor(routineIdentifier = null))
+                    },
+                )
+            }
+        }
+
+        composable<KindrepDestination.Progress> {
+            ScreenOrientationEffect(landscape = false)
+            MainNavigationScaffold(
+                selectedDestination = TopLevelDestination.PROGRESS,
+                onSelectDestination = { destination ->
+                    navigateToTopLevel(navigationController, shellViewModel, TopLevelDestination.PROGRESS, destination)
+                },
+            ) {
+                UpcomingTabScreen(
+                    title = stringResource(Res.string.progress_title),
+                    subtitle = stringResource(Res.string.progress_subtitle),
+                )
+            }
+        }
+
+        composable<KindrepDestination.RoutineEditor> { backStackEntry ->
+            ScreenOrientationEffect(landscape = false)
+            val destination = backStackEntry.toRoute<KindrepDestination.RoutineEditor>()
+            UpcomingDetailScreen(
+                title = stringResource(
+                    if (destination.routineIdentifier == null) {
+                        Res.string.routine_editor_new_title
+                    } else {
+                        Res.string.routine_editor_edit_title
+                    },
+                ),
+                subtitle = stringResource(Res.string.routine_editor_subtitle),
+                onBack = { navigationController.popBackStack() },
+            )
+        }
+
+        composable<KindrepDestination.ExerciseLibraryPicker> {
+            ScreenOrientationEffect(landscape = false)
+            UpcomingDetailScreen(
+                title = stringResource(Res.string.exercise_picker_title),
+                subtitle = stringResource(Res.string.exercise_picker_subtitle),
+                onBack = { navigationController.popBackStack() },
+            )
+        }
+
+        composable<KindrepDestination.GuidedSessionPlayer> { backStackEntry ->
+            val destination = backStackEntry.toRoute<KindrepDestination.GuidedSessionPlayer>()
+            ScreenOrientationEffect(landscape = true)
+            KeepScreenAwakeEffect(enabled = true)
+            GuidedSessionPlayerScreen(
+                routineIdentifier = destination.routineIdentifier,
+                onFinishToCheckIn = {
+                    navigationController.navigate(
+                        KindrepDestination.PostSessionCheckIn(
+                            sessionIdentifier = "preview-session",
+                            routineName = shellState.activeRoutine.name,
+                        ),
+                    ) {
+                        popUpTo(KindrepDestination.Today)
+                    }
+                },
+                onExit = { navigationController.popBackStack() },
+            )
+        }
+
+        composable<KindrepDestination.PostSessionCheckIn> { backStackEntry ->
+            ScreenOrientationEffect(landscape = false)
+            val destination = backStackEntry.toRoute<KindrepDestination.PostSessionCheckIn>()
+            PostSessionCheckInScreen(
+                routineName = destination.routineName,
+                onDone = {
+                    navigationController.navigate(KindrepDestination.Today) {
+                        popUpTo(KindrepDestination.Today) { inclusive = true }
+                    }
+                },
+            )
+        }
+    }
+}
+
+private fun navigateToTopLevel(
+    navigationController: NavHostController,
+    shellViewModel: ApplicationShellViewModel,
+    currentDestination: TopLevelDestination,
+    targetDestination: TopLevelDestination,
+) {
+    shellViewModel.selectTopLevelDestination(targetDestination)
+    if (currentDestination == targetDestination) return
+
+    val route = when (targetDestination) {
+        TopLevelDestination.TODAY -> KindrepDestination.Today
+        TopLevelDestination.ROUTINES -> KindrepDestination.Routines
+        TopLevelDestination.PROGRESS -> KindrepDestination.Progress
+    }
+    navigationController.navigate(route) {
+        launchSingleTop = true
+    }
+}

@@ -4,27 +4,27 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import com.jhonnyb.kindrep.platform.AndroidActivityHolder
+import com.jhonnyb.kindrep.platform.AndroidActivityRegistry
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
-        AndroidActivityHolder.currentActivity = this
+        AndroidActivityRegistry.currentActivity = this
 
         setContent {
-            KindrepApp()
+            KindrepRoot()
         }
     }
 
     override fun onResume() {
         super.onResume()
-        AndroidActivityHolder.currentActivity = this
+        AndroidActivityRegistry.currentActivity = this
     }
 
     override fun onDestroy() {
-        if (AndroidActivityHolder.currentActivity === this) {
-            AndroidActivityHolder.currentActivity = null
+        if (AndroidActivityRegistry.currentActivity === this) {
+            AndroidActivityRegistry.currentActivity = null
         }
         super.onDestroy()
     }

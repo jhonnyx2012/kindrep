@@ -1,0 +1,62 @@
+<resources>
+    <string name="app_name">Kindrep</string>
+
+    <!-- Bottom Navigation -->
+    <string name="navigation_today">Today</string>
+    <string name="navigation_routines">Routines</string>
+    <string name="navigation_progress">Progress</string>
+
+    <!-- Welcome & Safety Onboarding -->
+    <string name="welcome_title">Welcome to Kindrep</string>
+    <string name="welcome_subtitle">Your calm companion for staying consistent with the recovery plan your practitioner prescribed.</string>
+    <string name="welcome_disclaimer_heading">BEFORE YOU START</string>
+    <string name="welcome_disclaimer_point_no_prescription">• Kindrep doesn\'t prescribe exercises or replace your practitioner.</string>
+    <string name="welcome_disclaimer_point_clinician_plan">• Add only the plan your physiotherapist, chiropractor, or clinician gave you.</string>
+    <string name="welcome_disclaimer_point_stop_on_pain">• Stop right away if you feel sharp or worsening pain.</string>
+    <string name="welcome_accept_button">I Understand · Build My Routine</string>
+    <string name="welcome_privacy_note">All recovery data stays private on your device.</string>
+
+    <!-- Today Home -->
+    <string name="today_greeting">Good morning</string>
+    <string name="today_streak_badge">%1$d-day streak</string>
+    <string name="today_safety_button_label">i</string>
+    <string name="today_companion_title">1 more session for today</string>
+    <string name="today_companion_subtitle">Steady beats intense. Listen to your body.</string>
+    <string name="today_hidden_exercises_more">+ %1$d more exercise(s)...</string>
+    <string name="today_start_session">▶  Start Session</string>
+
+    <!-- Safety & About Dialog -->
+    <string name="safety_dialog_title">Safety &amp; About Kindrep</string>
+    <string name="safety_dialog_point_no_prescription">• Kindrep doesn\'t prescribe exercises or replace a licensed physiotherapist, chiropractor, osteopath, or clinician.</string>
+    <string name="safety_dialog_point_follow_plan">• Follow only the exercises, sets, and holds recommended for your recovery.</string>
+    <string name="safety_dialog_point_stop_on_pain">• Stop immediately if you experience sharp, radiating, or worsening pain.</string>
+    <string name="safety_dialog_confirm">Got it</string>
+
+    <!-- Guided Session Player -->
+    <string name="player_sample_exercise_heading">Bird Dog · Left Side</string>
+    <string name="player_sample_repetition_counter">Rep 4 / 8</string>
+    <string name="player_exit_action">Exit</string>
+    <string name="player_preview_placeholder_note">Hands-free automatic pacer and landscape heads-up display arriving in Week 2.</string>
+    <string name="player_preview_finish_action">Preview Post-Session Check-In</string>
+
+    <!-- Post-Session Check-In -->
+    <string name="check_in_title">Session Complete</string>
+    <string name="check_in_subtitle">%1$s · Pain and feeling check-in arriving in Week 3.</string>
+    <string name="check_in_back_to_today">Back to Today</string>
+
+    <!-- Routines, Progress & Secondary Destinations -->
+    <string name="routines_title">Routines</string>
+    <string name="routines_subtitle">Manage all practitioner-prescribed plans (Week 2).</string>
+    <string name="routines_create_action">+ Create Routine</string>
+    <string name="progress_title">Progress</string>
+    <string name="progress_subtitle">Consistency calendar and 14-day pain trend (Week 3).</string>
+    <string name="routine_editor_new_title">New Routine</string>
+    <string name="routine_editor_edit_title">Edit Routine</string>
+    <string name="routine_editor_subtitle">Routine Builder and Exercise Picker arriving in Week 2.</string>
+    <string name="exercise_picker_title">Exercise Library</string>
+    <string name="exercise_picker_subtitle">Add only exercises recommended by your practitioner.</string>
+    <string name="navigation_back_action">← Back</string>
+
+    <!-- Reusable Routine Strings -->
+    <string name="routine_metadata_summary">%1$d exercises · ~%2$d min · %3$ds breaks</string>
+</resources>

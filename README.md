@@ -1,37 +1,42 @@
 # Kindrep
 
-**Kindrep** is a calm, local-first, cross-platform (**Android & iOS**) guided recovery exercise player for any practitioner-prescribed plan (physiotherapy, chiropractic, osteopathy, athletic therapy, sports rehab, kinesiology) — built with **Kotlin Multiplatform** and **Compose Multiplatform**.
+**Kindrep** (`com.jhonnyb.kindrep`) is a calm, local-first, cross-platform (**Android & iOS**) guided recovery exercise player for any practitioner-prescribed plan (physiotherapy, chiropractic, osteopathy, athletic therapy, sports rehabilitation, kinesiology) — built with **Kotlin Multiplatform** and **Compose Multiplatform**.
 
-> **Important:** Kindrep is a habit & guided-playback companion for plans prescribed by a licensed healthcare practitioner. It does **not** diagnose injuries or prescribe medical exercises.
+> **Important:** Kindrep is a habit and guided-playback companion for plans prescribed by a licensed healthcare practitioner. It does **not** diagnose injuries or prescribe medical exercises.
 
 ---
 
-## Tech Stack
+## Architecture & Engineering Principles
 
-- **Shared UI:** Compose Multiplatform (`1.12.2`) + Material 3 (`Warm Earth` Light & `Soft Stone D3` Dark themes)
-- **Language & Build:** Kotlin `2.4.20`, Android Gradle Plugin `9.5.0`, Gradle `9.7.1`
-- **Typography & Shapes:** Bundled **Nunito** (`Regular`, `Medium`, `SemiBold`, `Bold` with `tnum` tabular numerals) & tuned `18 / 14 / 12 / 9dp` radii
-- **Dependency Injection:** **Koin** (`4.2.2`) + **Koin Compiler Plugin** (`io.insert-koin.compiler.plugin`)
-- **Navigation & State:** Type-safe `navigation-compose` (`2.10.0`), AndroidX `lifecycle-viewmodel-compose` (`2.11.0`), Kotlin Coroutines & `StateFlow`
-- **Platform Bridges (`expect` / `actual`):**
+*(Library and plugin versions live exclusively in [gradle/libs.versions.toml](gradle/libs.versions.toml); full domain models and state machines live in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).)*
+
+- **Clean Architecture & Object-Oriented Separation:** Clear boundaries across `domain`, `data`, `platform`, `presentation`, `navigation`, `dependencyinjection`, and `ui` (`theme`, `components`, `dialogs`, `screens`).
+- **Focused User Interface Files:** Single-responsibility Compose components and screens with **one** `@Preview` per visual file, enforced automatically by `:composeApp:verifyUiArchitecture`.
+- **Design System:** Material 3 (`Warm Earth` Light & `Soft Stone D3` Dark themes), bundled **Nunito** typography with tabular numerals (`tnum`), and tuned `18 / 14 / 12 / 9.dp` corner radii.
+- **Native Platform Contracts (`expect` / `actual`):**
   1. `LoopingExerciseVideo` — Seamless muted exercise loops (`Media3` / `AVPlayerLooper`)
-  2. `AudioCuePlayer` — Non-intrusive audio cues with music ducking
-  3. `KeepScreenAwake` — Active session wake lock
-  4. `MediaResolver` — Local media & calm neutral-gray figure fallback
-  5. `LockScreenOrientation` — Full-screen Landscape lock for floor-mat sessions (`04A–04E`)
+  2. `AudioCueService` — Non-intrusive audio cues with transient music ducking
+  3. `KeepScreenAwakeEffect` — Active session wake lock
+  4. `MediaAssetLocator` — Local media lookup with calm neutral-gray figure fallback
+  5. `ScreenOrientationEffect` — Full-screen Landscape lock for floor-mat sessions
 
 ## Project Structure
 
-- `composeApp/` — Shared Kotlin Multiplatform & Compose Multiplatform UI, theme, mascots, DI, navigation, and `expect`/`actual` bridges (`commonMain`, `androidMain`, `iosMain`, `commonTest`)
-- `androidApp/` — Android application entry point (`com.jhonnyb.kindrep`) & adaptive 2B launcher icons
+- `composeApp/` — Shared Kotlin Multiplatform domain, data, presentation, navigation, dependency injection, platform contracts, and Compose Multiplatform user interface (`commonMain`, `androidMain`, `iosMain`, `commonTest`)
+- `androidApp/` — Android application entry point (`com.jhonnyb.kindrep`) and adaptive launcher icons
 - `iosApp/` — Xcode project wrapping the shared `ComposeApp` framework for iOS
+- `AGENTS.md` & `.agents/` — Agent engineering constitution, scoped rules, and project synchronization skills
+- `docs/ARCHITECTURE.md` — Product boundaries, Clean Architecture layers, persistence schema, and player state machine
 
 ## Development
 
-```bash
-# Run shared unit tests + build debug Android APK
-./gradlew :composeApp:testAndroidHostTest :androidApp:assembleDebug
+```powershell
+# Windows verification harness (UI architecture & preview gate + host unit tests + debug Android build)
+powershell -ExecutionPolicy Bypass -File .\scripts\verify.ps1
+```
 
-# Build iOS Simulator framework (macOS)
+```bash
+# macOS / Linux verification + iOS Simulator framework
+./gradlew :composeApp:verifyUiArchitecture :composeApp:testAndroidHostTest :androidApp:assembleDebug
 ./gradlew :composeApp:linkDebugFrameworkIosSimulatorArm64
 ```

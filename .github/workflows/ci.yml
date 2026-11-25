@@ -30,8 +30,8 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x ./gradlew
 
-      - name: Run Shared Host Unit Tests & Assemble Debug APK
-        run: ./gradlew :composeApp:testAndroidHostTest :androidApp:assembleDebug --no-daemon
+      - name: Verify User Interface Architecture, Run Host Unit Tests & Assemble Debug Package
+        run: ./gradlew :composeApp:verifyUiArchitecture :composeApp:testAndroidHostTest :androidApp:assembleDebug --no-daemon
 
   ios:
     name: iOS Simulator Framework & App Build
