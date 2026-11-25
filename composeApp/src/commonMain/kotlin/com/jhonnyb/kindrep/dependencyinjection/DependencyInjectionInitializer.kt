@@ -17,7 +17,7 @@ val applicationModule = module {
     single<OnboardingPreferencesRepository> { InMemoryOnboardingPreferencesRepository() }
     single<AudioCueService> { createPlatformAudioCueService() }
     single<MediaAssetLocator> { createPlatformMediaAssetLocator() }
-    viewModel { ApplicationShellViewModel(get(), get(), get()) }
+    viewModel { ApplicationShellViewModel(get(), get()) }
 }
 
 private var activeKoinApplication: KoinApplication? = null

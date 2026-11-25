@@ -7,11 +7,17 @@ import kotlin.test.assertTrue
 class InMemoryOnboardingPreferencesRepositoryTest {
 
     @Test
-    fun disclaimerAcceptanceTransitionsFromFalseToTrue() {
+    fun newInstallRequiresSafetyDisclaimerAcceptanceByDefault() {
         val repository = InMemoryOnboardingPreferencesRepository()
 
         assertFalse(repository.hasAcceptedDisclaimer.value)
+    }
 
+    @Test
+    fun recordingDisclaimerAcceptancePersistsIdempotentlyAcrossReads() {
+        val repository = InMemoryOnboardingPreferencesRepository()
+
+        repository.recordDisclaimerAcceptance()
         repository.recordDisclaimerAcceptance()
 
         assertTrue(repository.hasAcceptedDisclaimer.value)

@@ -37,10 +37,6 @@ import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.jhonnyb.kindrep.generated.resources.Res
-import com.jhonnyb.kindrep.generated.resources.navigation_progress
-import com.jhonnyb.kindrep.generated.resources.navigation_routines
-import com.jhonnyb.kindrep.generated.resources.navigation_today
 import com.jhonnyb.kindrep.navigation.TopLevelDestination
 import com.jhonnyb.kindrep.ui.theme.KindrepTheme
 import com.jhonnyb.kindrep.ui.theme.LocalKindrepPalette
@@ -140,18 +136,11 @@ private fun RowScope.NavigationTabItemPill(
             modifier = Modifier.size(22.dp),
         )
         Text(
-            text = destinationLabel(destination),
+            text = stringResource(destination.labelResource),
             style = MaterialTheme.typography.labelMedium,
             color = contentColor,
         )
     }
-}
-
-@Composable
-private fun destinationLabel(destination: TopLevelDestination): String = when (destination) {
-    TopLevelDestination.TODAY -> stringResource(Res.string.navigation_today)
-    TopLevelDestination.ROUTINES -> stringResource(Res.string.navigation_routines)
-    TopLevelDestination.PROGRESS -> stringResource(Res.string.navigation_progress)
 }
 
 private val RoutineRowVerticalFractions = floatArrayOf(0.27f, 0.50f, 0.73f)

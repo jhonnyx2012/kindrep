@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import com.jhonnyb.kindrep.domain.repository.OnboardingPreferencesRepository
 import com.jhonnyb.kindrep.domain.service.AudioCueKeys
 import com.jhonnyb.kindrep.domain.service.AudioCueService
-import com.jhonnyb.kindrep.domain.service.MediaAssetLocator
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,7 +15,6 @@ import kotlinx.coroutines.flow.update
 class ApplicationShellViewModel(
     private val onboardingPreferencesRepository: OnboardingPreferencesRepository,
     private val audioCueService: AudioCueService,
-    private val mediaAssetLocator: MediaAssetLocator,
 ) : ViewModel() {
 
     private val mutableState = MutableStateFlow(
@@ -38,9 +36,6 @@ class ApplicationShellViewModel(
             is ApplicationShellIntent.StartSession -> handleStartSession(intent.routineIdentifier)
         }
     }
-
-    fun hasBundledVideo(mediaKey: String): Boolean =
-        mediaAssetLocator.resolveLocalVideoPath(mediaKey) != null
 
     private fun handleAcceptDisclaimer() {
         onboardingPreferencesRepository.recordDisclaimerAcceptance()

@@ -109,12 +109,24 @@ abstract class VerifyUiArchitectureTask : DefaultTask() {
     @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val androidSourceRoot: DirectoryProperty
 
+    @get:InputDirectory
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    abstract val testSourceRoot: DirectoryProperty
+
     @TaskAction
     fun verify() {
         val rootDirectory = sourceRoot.get().asFile
+        val testDirectory = testSourceRoot.get().asFile
         val kotlinFiles = rootDirectory.walkTopDown()
             .filter { file -> file.isFile && file.extension == "kt" }
             .toList()
+        val testFilesByName = if (testDirectory.exists()) {
+            testDirectory.walkTopDown()
+                .filter { file -> file.isFile && file.extension == "kt" }
+                .associateBy { it.name }
+        } else {
+            emptyMap()
+        }
 
         val violations = mutableListOf<String>()
         val composableAnnotationPattern = Regex("""@Composable\b""")
@@ -147,6 +159,11 @@ abstract class VerifyUiArchitectureTask : DefaultTask() {
             if (relativePath.startsWith("presentation/") && file.name.endsWith("ViewModel.kt")) {
                 if (!onIntentSignaturePattern.containsMatchIn(content)) {
                     violations += "$relativePath must expose 'fun onIntent(...)' to follow Kindrep's Model-View-Intent Unidirectional Data Flow standard."
+                }
+                val expectedTestFileName = file.nameWithoutExtension + "Test.kt"
+                val matchingTestFile = testFilesByName[expectedTestFileName]
+                if (matchingTestFile == null || !matchingTestFile.readText().contains("@Test")) {
+                    violations += "$relativePath is missing a corresponding unit test suite ($expectedTestFileName with @Test cases) in commonTest."
                 }
             }
 
@@ -186,9 +203,10 @@ abstract class VerifyUiArchitectureTask : DefaultTask() {
 
 val verifyUiArchitecture = tasks.register<VerifyUiArchitectureTask>("verifyUiArchitecture") {
     group = "verification"
-    description = "Verifies file size bounds, Model-View-Intent ViewModel entry points, string localization, landscape scrollability, and the single-@Preview-per-file rule."
+    description = "Verifies file size bounds, Model-View-Intent ViewModel entry points and test parity, string localization, landscape scrollability, and the single-@Preview-per-file rule."
     sourceRoot.set(layout.projectDirectory.dir("src/commonMain/kotlin/com/jhonnyb/kindrep"))
     androidSourceRoot.set(layout.projectDirectory.dir("src/androidMain/kotlin/com/jhonnyb/kindrep"))
+    testSourceRoot.set(layout.projectDirectory.dir("src/commonTest/kotlin/com/jhonnyb/kindrep"))
 }
 
 tasks.named("check") {
