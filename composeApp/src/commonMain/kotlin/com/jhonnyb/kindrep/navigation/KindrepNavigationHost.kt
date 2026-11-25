@@ -5,7 +5,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
-import com.jhonnyb.kindrep.domain.service.AudioCueKeys
 import com.jhonnyb.kindrep.generated.resources.Res
 import com.jhonnyb.kindrep.generated.resources.exercise_picker_subtitle
 import com.jhonnyb.kindrep.generated.resources.exercise_picker_title
@@ -19,8 +18,8 @@ import com.jhonnyb.kindrep.generated.resources.routines_subtitle
 import com.jhonnyb.kindrep.generated.resources.routines_title
 import com.jhonnyb.kindrep.platform.KeepScreenAwakeEffect
 import com.jhonnyb.kindrep.platform.ScreenOrientationEffect
+import com.jhonnyb.kindrep.presentation.shell.ApplicationShellIntent
 import com.jhonnyb.kindrep.presentation.shell.ApplicationShellState
-import com.jhonnyb.kindrep.presentation.shell.ApplicationShellViewModel
 import com.jhonnyb.kindrep.ui.components.MainNavigationScaffold
 import com.jhonnyb.kindrep.ui.screens.checkin.PostSessionCheckInScreen
 import com.jhonnyb.kindrep.ui.screens.placeholder.UpcomingDetailScreen
@@ -30,11 +29,13 @@ import com.jhonnyb.kindrep.ui.screens.today.TodayHomeScreen
 import com.jhonnyb.kindrep.ui.screens.welcome.WelcomeDisclaimerScreen
 import org.jetbrains.compose.resources.stringResource
 
+private const val PREVIEW_SESSION_IDENTIFIER = "preview-session"
+
 @Composable
 fun KindrepNavigationHost(
     navigationController: NavHostController,
     shellState: ApplicationShellState,
-    shellViewModel: ApplicationShellViewModel,
+    onShellIntent: (ApplicationShellIntent) -> Unit,
 ) {
     NavHost(
         navController = navigationController,
@@ -47,12 +48,7 @@ fun KindrepNavigationHost(
         composable<KindrepDestination.Welcome> {
             ScreenOrientationEffect(landscape = false)
             WelcomeDisclaimerScreen(
-                onAccept = {
-                    shellViewModel.acceptDisclaimer()
-                    navigationController.navigate(KindrepDestination.Today) {
-                        popUpTo(KindrepDestination.Welcome) { inclusive = true }
-                    }
-                },
+                onAccept = { onShellIntent(ApplicationShellIntent.AcceptDisclaimer) },
             )
         }
 
@@ -61,18 +57,17 @@ fun KindrepNavigationHost(
             MainNavigationScaffold(
                 selectedDestination = TopLevelDestination.TODAY,
                 onSelectDestination = { destination ->
-                    navigateToTopLevel(navigationController, shellViewModel, TopLevelDestination.TODAY, destination)
+                    onShellIntent(ApplicationShellIntent.SelectTopLevelDestination(destination))
                 },
             ) {
                 TodayHomeScreen(
                     streakDayCount = shellState.streakDayCount,
                     routine = shellState.activeRoutine,
-                    onOpenSafetyNotice = { shellViewModel.setSafetyDialogVisible(true) },
+                    onOpenSafetyNotice = {
+                        onShellIntent(ApplicationShellIntent.OpenSafetyDialog)
+                    },
                     onStartSession = { routineIdentifier ->
-                        shellViewModel.triggerAudioCue(AudioCueKeys.READY)
-                        navigationController.navigate(
-                            KindrepDestination.GuidedSessionPlayer(routineIdentifier = routineIdentifier),
-                        )
+                        onShellIntent(ApplicationShellIntent.StartSession(routineIdentifier))
                     },
                 )
             }
@@ -83,7 +78,7 @@ fun KindrepNavigationHost(
             MainNavigationScaffold(
                 selectedDestination = TopLevelDestination.ROUTINES,
                 onSelectDestination = { destination ->
-                    navigateToTopLevel(navigationController, shellViewModel, TopLevelDestination.ROUTINES, destination)
+                    onShellIntent(ApplicationShellIntent.SelectTopLevelDestination(destination))
                 },
             ) {
                 UpcomingTabScreen(
@@ -91,7 +86,9 @@ fun KindrepNavigationHost(
                     subtitle = stringResource(Res.string.routines_subtitle),
                     primaryActionLabel = stringResource(Res.string.routines_create_action),
                     onPrimaryAction = {
-                        navigationController.navigate(KindrepDestination.RoutineEditor(routineIdentifier = null))
+                        navigationController.navigate(
+                            KindrepDestination.RoutineEditor(routineIdentifier = null),
+                        )
                     },
                 )
             }
@@ -102,7 +99,7 @@ fun KindrepNavigationHost(
             MainNavigationScaffold(
                 selectedDestination = TopLevelDestination.PROGRESS,
                 onSelectDestination = { destination ->
-                    navigateToTopLevel(navigationController, shellViewModel, TopLevelDestination.PROGRESS, destination)
+                    onShellIntent(ApplicationShellIntent.SelectTopLevelDestination(destination))
                 },
             ) {
                 UpcomingTabScreen(
@@ -146,7 +143,7 @@ fun KindrepNavigationHost(
                 onFinishToCheckIn = {
                     navigationController.navigate(
                         KindrepDestination.PostSessionCheckIn(
-                            sessionIdentifier = "preview-session",
+                            sessionIdentifier = PREVIEW_SESSION_IDENTIFIER,
                             routineName = shellState.activeRoutine.name,
                         ),
                     ) {
@@ -169,24 +166,5 @@ fun KindrepNavigationHost(
                 },
             )
         }
-    }
-}
-
-private fun navigateToTopLevel(
-    navigationController: NavHostController,
-    shellViewModel: ApplicationShellViewModel,
-    currentDestination: TopLevelDestination,
-    targetDestination: TopLevelDestination,
-) {
-    shellViewModel.selectTopLevelDestination(targetDestination)
-    if (currentDestination == targetDestination) return
-
-    val route = when (targetDestination) {
-        TopLevelDestination.TODAY -> KindrepDestination.Today
-        TopLevelDestination.ROUTINES -> KindrepDestination.Routines
-        TopLevelDestination.PROGRESS -> KindrepDestination.Progress
-    }
-    navigationController.navigate(route) {
-        launchSingleTop = true
     }
 }

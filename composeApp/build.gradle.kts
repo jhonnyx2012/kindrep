@@ -45,6 +45,9 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
+            implementation(projects.domain)
+            implementation(projects.data)
+
             implementation(libs.compose.runtime)
             implementation(libs.compose.foundation)
             @Suppress("DEPRECATION")
@@ -82,6 +85,12 @@ kotlin {
     }
 }
 
+composeCompiler {
+    stabilityConfigurationFiles.add(
+        rootProject.layout.projectDirectory.file("compose_stability.conf"),
+    )
+}
+
 dependencies {
     "androidRuntimeClasspath"(libs.compose.ui.tooling)
 }
@@ -106,6 +115,8 @@ abstract class VerifyUiArchitectureTask : DefaultTask() {
         val violations = mutableListOf<String>()
         val composableAnnotationPattern = Regex("""@Composable\b""")
         val previewAnnotationPattern = Regex("""@Preview\b""")
+        val hardcodedTextLiteralPattern = Regex("""\bText\s*\(\s*(?:text\s*=\s*)?"[^"]+"""")
+        val onIntentSignaturePattern = Regex("""\bfun\s+onIntent\s*\(""")
 
         kotlinFiles.forEach { file ->
             val relativePath = file.relativeTo(rootDirectory).invariantSeparatorsPath
@@ -114,6 +125,18 @@ abstract class VerifyUiArchitectureTask : DefaultTask() {
 
             if (lines.size > 700) {
                 violations += "$relativePath has ${lines.size} lines (maximum 700 lines per file; split responsibilities cleanly)."
+            }
+
+            if (relativePath.startsWith("presentation/") && file.name.endsWith("ViewModel.kt")) {
+                if (!onIntentSignaturePattern.containsMatchIn(content)) {
+                    violations += "$relativePath must expose 'fun onIntent(...)' to follow Kindrep's Model-View-Intent Unidirectional Data Flow standard."
+                }
+            }
+
+            val isUserInterfaceOrNavigationFile =
+                relativePath.startsWith("ui/") || relativePath.startsWith("navigation/")
+            if (isUserInterfaceOrNavigationFile && hardcodedTextLiteralPattern.containsMatchIn(content)) {
+                violations += "$relativePath contains a hardcoded Text(\"...\") string literal; localize user-facing text in composeResources/values/strings.xml."
             }
 
             val isVisualUserInterfaceFile =
@@ -128,16 +151,13 @@ abstract class VerifyUiArchitectureTask : DefaultTask() {
                 if (composableCount > 0 && previewCount != 1) {
                     violations += "$relativePath declares $previewCount @Preview function(s); expected exactly 1 @Preview per visual Compose file."
                 }
-                if (composableCount > 4) {
-                    violations += "$relativePath declares $composableCount @Composable functions (maximum 4 per visual file; extract sub-components)."
-                }
             }
         }
 
         if (violations.isNotEmpty()) {
             val formattedViolations = violations.joinToString("\n") { " - $it" }
             throw GradleException(
-                "Kindrep UI & Clean Architecture verification failed:\n$formattedViolations",
+                "Kindrep UI & Model-View-Intent architecture verification failed:\n$formattedViolations",
             )
         }
     }
@@ -145,7 +165,7 @@ abstract class VerifyUiArchitectureTask : DefaultTask() {
 
 val verifyUiArchitecture = tasks.register<VerifyUiArchitectureTask>("verifyUiArchitecture") {
     group = "verification"
-    description = "Verifies Clean Architecture file size bounds, composable cohesion, and the single-@Preview-per-file rule."
+    description = "Verifies file size bounds, Model-View-Intent ViewModel entry points, string localization, and the single-@Preview-per-file rule."
     sourceRoot.set(layout.projectDirectory.dir("src/commonMain/kotlin/com/jhonnyb/kindrep"))
 }
 

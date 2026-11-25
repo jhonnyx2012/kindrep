@@ -10,33 +10,28 @@
 
 *(Library and plugin versions live exclusively in [gradle/libs.versions.toml](gradle/libs.versions.toml); full domain models and state machines live in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).)*
 
-- **Clean Architecture & Object-Oriented Separation:** Clear boundaries across `domain`, `data`, `platform`, `presentation`, `navigation`, `dependencyinjection`, and `ui` (`theme`, `components`, `dialogs`, `screens`).
-- **Focused User Interface Files:** Single-responsibility Compose components and screens with **one** `@Preview` per visual file, enforced automatically by `:composeApp:verifyUiArchitecture`.
-- **Design System:** Material 3 (`Warm Earth` Light & `Soft Stone D3` Dark themes), bundled **Nunito** typography with tabular numerals (`tnum`), and tuned `18 / 14 / 12 / 9.dp` corner radii.
-- **Native Platform Contracts (`expect` / `actual`):**
-  1. `LoopingExerciseVideo` — Seamless muted exercise loops (`Media3` / `AVPlayerLooper`)
-  2. `AudioCueService` — Non-intrusive audio cues with transient music ducking
-  3. `KeepScreenAwakeEffect` — Active session wake lock
-  4. `MediaAssetLocator` — Local media lookup with calm neutral-gray figure fallback
-  5. `ScreenOrientationEffect` — Full-screen Landscape lock for floor-mat sessions
+- **Multi-Module Clean Architecture:** Physical Gradle module separation across `:domain` (pure Kotlin deeply-immutable models and contracts), `:data` (repositories and local persistence), `:composeApp` (Model-View-Intent presentation, decomposed Compose UI, navigation, platform bridges, and dependency injection), `:androidApp`, and `iosApp/`.
+- **Model-View-Intent (Unidirectional Data Flow):** Immutable `@Immutable` screen states, sealed `Intent` actions routed through a single `onIntent(...)` handler, and buffered `Effect` streams for one-off events.
+- **Recomposition-Safe, Decomposed Compose UI:** Outline-clear screens built from small, legible sub-composables, localized `strings.xml` resources, cross-module stability via `compose_stability.conf`, phase-deferred animation/timer reads, and **one** `@Preview` per visual file.
 
 ## Project Structure
 
-- `composeApp/` — Shared Kotlin Multiplatform domain, data, presentation, navigation, dependency injection, platform contracts, and Compose Multiplatform user interface (`commonMain`, `androidMain`, `iosMain`, `commonTest`)
+- `domain/` — Pure Kotlin Multiplatform domain models, repository interfaces, use cases, and service contracts
+- `data/` — Kotlin Multiplatform repository implementations and local persistence
+- `composeApp/` — Shared Compose Multiplatform UI, Model-View-Intent ViewModels, navigation, Koin dependency injection, and `expect`/`actual` bridges
 - `androidApp/` — Android application entry point (`com.jhonnyb.kindrep`) and adaptive launcher icons
 - `iosApp/` — Xcode project wrapping the shared `ComposeApp` framework for iOS
-- `AGENTS.md` & `.agents/` — Agent engineering constitution, scoped rules, and project synchronization skills
-- `docs/ARCHITECTURE.md` — Product boundaries, Clean Architecture layers, persistence schema, and player state machine
+- `AGENTS.md` & `.agents/` — Everlasting agent engineering constitution, scoped rules, and project synchronization skills
 
 ## Development
 
 ```powershell
-# Windows verification harness (UI architecture & preview gate + host unit tests + debug Android build)
+# Windows multi-module verification harness
 powershell -ExecutionPolicy Bypass -File .\scripts\verify.ps1
 ```
 
 ```bash
 # macOS / Linux verification + iOS Simulator framework
-./gradlew :composeApp:verifyUiArchitecture :composeApp:testAndroidHostTest :androidApp:assembleDebug
+./gradlew :domain:verifyDomainImmutability :domain:jvmTest :data:testAndroidHostTest :composeApp:verifyUiArchitecture :composeApp:testAndroidHostTest :androidApp:assembleDebug
 ./gradlew :composeApp:linkDebugFrameworkIosSimulatorArm64
 ```

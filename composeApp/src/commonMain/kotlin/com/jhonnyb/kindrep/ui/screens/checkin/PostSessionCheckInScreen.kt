@@ -38,8 +38,6 @@ fun PostSessionCheckInScreen(
     onDone: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val palette = LocalKindrepPalette.current
-
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -48,6 +46,17 @@ fun PostSessionCheckInScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
+        CheckInCelebrationHeader(routineName = routineName)
+        Spacer(Modifier.height(28.dp))
+        CheckInPrimaryButton(onClick = onDone)
+    }
+}
+
+@Composable
+private fun CheckInCelebrationHeader(routineName: String) {
+    val palette = LocalKindrepPalette.current
+
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
         KindrepBunnyMascot(
             pose = MascotPose.Celebration,
             modifier = Modifier.size(width = 240.dp, height = 180.dp),
@@ -65,23 +74,28 @@ fun PostSessionCheckInScreen(
             color = palette.textMuted,
             textAlign = TextAlign.Center,
         )
-        Spacer(Modifier.height(28.dp))
-        Button(
-            onClick = onDone,
-            shape = RoundedCornerShape(14.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = palette.primary,
-                contentColor = palette.onPrimary,
-            ),
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp),
-        ) {
-            Text(
-                text = stringResource(Res.string.check_in_back_to_today),
-                style = MaterialTheme.typography.labelLarge,
-            )
-        }
+    }
+}
+
+@Composable
+private fun CheckInPrimaryButton(onClick: () -> Unit) {
+    val palette = LocalKindrepPalette.current
+
+    Button(
+        onClick = onClick,
+        shape = RoundedCornerShape(14.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = palette.primary,
+            contentColor = palette.onPrimary,
+        ),
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(56.dp),
+    ) {
+        Text(
+            text = stringResource(Res.string.check_in_back_to_today),
+            style = MaterialTheme.typography.labelLarge,
+        )
     }
 }
 

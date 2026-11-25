@@ -37,6 +37,7 @@ import com.jhonnyb.kindrep.ui.components.KindrepBunnyMascot
 import com.jhonnyb.kindrep.ui.components.MascotPose
 import com.jhonnyb.kindrep.ui.theme.KindrepTheme
 import com.jhonnyb.kindrep.ui.theme.LocalKindrepPalette
+import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
@@ -44,8 +45,6 @@ fun WelcomeDisclaimerScreen(
     onAccept: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val palette = LocalKindrepPalette.current
-
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -55,6 +54,20 @@ fun WelcomeDisclaimerScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Spacer(Modifier.height(24.dp))
+        WelcomeHeroHeader()
+        Spacer(Modifier.height(28.dp))
+        DisclaimerSummaryCard()
+        Spacer(Modifier.weight(1f))
+        Spacer(Modifier.height(24.dp))
+        WelcomeActionFooter(onAccept = onAccept)
+    }
+}
+
+@Composable
+private fun WelcomeHeroHeader() {
+    val palette = LocalKindrepPalette.current
+
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
         KindrepBunnyMascot(
             pose = MascotPose.Welcome,
             modifier = Modifier.size(width = 240.dp, height = 180.dp),
@@ -72,35 +85,6 @@ fun WelcomeDisclaimerScreen(
             style = MaterialTheme.typography.bodyLarge,
             color = palette.textMuted,
             textAlign = TextAlign.Center,
-        )
-        Spacer(Modifier.height(28.dp))
-
-        DisclaimerSummaryCard()
-
-        Spacer(Modifier.weight(1f))
-        Spacer(Modifier.height(24.dp))
-
-        Button(
-            onClick = onAccept,
-            shape = RoundedCornerShape(14.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = palette.primary,
-                contentColor = palette.onPrimary,
-            ),
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp),
-        ) {
-            Text(
-                text = stringResource(Res.string.welcome_accept_button),
-                style = MaterialTheme.typography.labelLarge,
-            )
-        }
-        Spacer(Modifier.height(10.dp))
-        Text(
-            text = stringResource(Res.string.welcome_privacy_note),
-            style = MaterialTheme.typography.bodyMedium,
-            color = palette.textMuted,
         )
     }
 }
@@ -124,22 +108,52 @@ private fun DisclaimerSummaryCard() {
                 style = MaterialTheme.typography.labelMedium,
                 color = palette.secondary,
             )
+            DisclaimerBulletItem(Res.string.welcome_disclaimer_point_no_prescription)
+            DisclaimerBulletItem(Res.string.welcome_disclaimer_point_clinician_plan)
+            DisclaimerBulletItem(Res.string.welcome_disclaimer_point_stop_on_pain)
+        }
+    }
+}
+
+@Composable
+private fun DisclaimerBulletItem(textResource: StringResource) {
+    Text(
+        text = stringResource(textResource),
+        style = MaterialTheme.typography.bodyMedium,
+        color = LocalKindrepPalette.current.textPrimary,
+    )
+}
+
+@Composable
+private fun WelcomeActionFooter(onAccept: () -> Unit) {
+    val palette = LocalKindrepPalette.current
+
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Button(
+            onClick = onAccept,
+            shape = RoundedCornerShape(14.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = palette.primary,
+                contentColor = palette.onPrimary,
+            ),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(56.dp),
+        ) {
             Text(
-                text = stringResource(Res.string.welcome_disclaimer_point_no_prescription),
-                style = MaterialTheme.typography.bodyMedium,
-                color = palette.textPrimary,
-            )
-            Text(
-                text = stringResource(Res.string.welcome_disclaimer_point_clinician_plan),
-                style = MaterialTheme.typography.bodyMedium,
-                color = palette.textPrimary,
-            )
-            Text(
-                text = stringResource(Res.string.welcome_disclaimer_point_stop_on_pain),
-                style = MaterialTheme.typography.bodyMedium,
-                color = palette.textPrimary,
+                text = stringResource(Res.string.welcome_accept_button),
+                style = MaterialTheme.typography.labelLarge,
             )
         }
+        Spacer(Modifier.height(10.dp))
+        Text(
+            text = stringResource(Res.string.welcome_privacy_note),
+            style = MaterialTheme.typography.bodyMedium,
+            color = palette.textMuted,
+        )
     }
 }
 

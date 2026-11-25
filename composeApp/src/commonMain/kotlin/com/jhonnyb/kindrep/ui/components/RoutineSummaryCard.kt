@@ -21,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.jhonnyb.kindrep.domain.model.ExerciseSummary
 import com.jhonnyb.kindrep.domain.model.RoutineOverview
 import com.jhonnyb.kindrep.generated.resources.Res
 import com.jhonnyb.kindrep.generated.resources.routine_metadata_summary
@@ -48,86 +49,127 @@ fun RoutineSummaryCard(
             modifier = Modifier.padding(18.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = routine.name,
-                        style = MaterialTheme.typography.titleLarge,
-                        color = palette.textPrimary,
-                    )
-                    Text(
-                        text = stringResource(
-                            Res.string.routine_metadata_summary,
-                            routine.exercises.size,
-                            routine.estimatedMinutes,
-                            routine.breakDurationSeconds,
-                        ),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = palette.textMuted,
-                    )
-                }
-                Box(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(9.dp))
-                        .background(palette.secondarySoft)
-                        .padding(horizontal = 10.dp, vertical = 5.dp),
-                ) {
-                    Text(
-                        text = routine.dailyProgressBadge,
-                        style = MaterialTheme.typography.labelMedium,
-                        color = palette.secondary,
-                    )
-                }
-            }
-
-            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                routine.visibleExercises.forEach { exercise ->
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                    ) {
-                        Text(
-                            text = exercise.numberedTitle,
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = palette.textPrimary,
-                        )
-                        Text(
-                            text = exercise.targetDescription,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = palette.textMuted,
-                        )
-                    }
-                }
-                if (routine.hiddenExerciseCount > 0) {
-                    Text(
-                        text = stringResource(Res.string.today_hidden_exercises_more, routine.hiddenExerciseCount),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = palette.textMuted,
-                    )
-                }
-            }
-
-            Button(
+            RoutineCardHeader(routine = routine)
+            RoutineExercisePreviewList(
+                visibleExercises = routine.visibleExercises,
+                hiddenExerciseCount = routine.hiddenExerciseCount,
+            )
+            StartSessionButton(
                 onClick = { onStartSession(routine.identifier) },
-                shape = RoundedCornerShape(14.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = palette.primary,
-                    contentColor = palette.onPrimary,
-                ),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp),
-            ) {
-                Text(
-                    text = stringResource(Res.string.today_start_session),
-                    style = MaterialTheme.typography.labelLarge,
-                )
-            }
+            )
         }
+    }
+}
+
+@Composable
+private fun RoutineCardHeader(routine: RoutineOverview) {
+    val palette = LocalKindrepPalette.current
+
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = routine.name,
+                style = MaterialTheme.typography.titleLarge,
+                color = palette.textPrimary,
+            )
+            Text(
+                text = stringResource(
+                    Res.string.routine_metadata_summary,
+                    routine.exercises.size,
+                    routine.estimatedMinutes,
+                    routine.breakDurationSeconds,
+                ),
+                style = MaterialTheme.typography.bodyMedium,
+                color = palette.textMuted,
+            )
+        }
+        DailyProgressBadge(progressLabel = routine.dailyProgressBadge)
+    }
+}
+
+@Composable
+private fun DailyProgressBadge(progressLabel: String) {
+    val palette = LocalKindrepPalette.current
+
+    Box(
+        modifier = Modifier
+            .clip(RoundedCornerShape(9.dp))
+            .background(palette.secondarySoft)
+            .padding(horizontal = 10.dp, vertical = 5.dp),
+    ) {
+        Text(
+            text = progressLabel,
+            style = MaterialTheme.typography.labelMedium,
+            color = palette.secondary,
+        )
+    }
+}
+
+@Composable
+private fun RoutineExercisePreviewList(
+    visibleExercises: List<ExerciseSummary>,
+    hiddenExerciseCount: Int,
+) {
+    val palette = LocalKindrepPalette.current
+
+    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        visibleExercises.forEach { exercise ->
+            RoutineExercisePreviewRow(exercise = exercise)
+        }
+        if (hiddenExerciseCount > 0) {
+            Text(
+                text = stringResource(Res.string.today_hidden_exercises_more, hiddenExerciseCount),
+                style = MaterialTheme.typography.bodyMedium,
+                color = palette.textMuted,
+            )
+        }
+    }
+}
+
+@Composable
+private fun RoutineExercisePreviewRow(exercise: ExerciseSummary) {
+    val palette = LocalKindrepPalette.current
+
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+    ) {
+        Text(
+            text = exercise.numberedTitle,
+            style = MaterialTheme.typography.bodyLarge,
+            color = palette.textPrimary,
+        )
+        Text(
+            text = exercise.targetDescription,
+            style = MaterialTheme.typography.bodyMedium,
+            color = palette.textMuted,
+        )
+    }
+}
+
+@Composable
+private fun StartSessionButton(onClick: () -> Unit) {
+    val palette = LocalKindrepPalette.current
+
+    Button(
+        onClick = onClick,
+        shape = RoundedCornerShape(14.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = palette.primary,
+            contentColor = palette.onPrimary,
+        ),
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(56.dp),
+    ) {
+        Text(
+            text = stringResource(Res.string.today_start_session),
+            style = MaterialTheme.typography.labelLarge,
+        )
     }
 }
 

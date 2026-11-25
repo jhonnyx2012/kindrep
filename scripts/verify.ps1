@@ -17,6 +17,13 @@ if (-not $env:ANDROID_HOME) {
     }
 }
 
-Write-Host "==> Running Kindrep verification harness (UI Architecture & Previews + Host Unit Tests + Android Debug Build)..."
-& .\gradlew.bat :composeApp:verifyUiArchitecture :composeApp:testAndroidHostTest :androidApp:assembleDebug --no-daemon @args
+Write-Host "==> Running Kindrep multi-module verification harness (Domain + Data + Compose Architecture & Previews + Host Tests + Android Debug Build)..."
+& .\gradlew.bat `
+    :domain:verifyDomainImmutability `
+    :domain:jvmTest `
+    :data:testAndroidHostTest `
+    :composeApp:verifyUiArchitecture `
+    :composeApp:testAndroidHostTest `
+    :androidApp:assembleDebug `
+    --no-daemon @args
 exit $LASTEXITCODE

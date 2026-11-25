@@ -45,6 +45,12 @@ kotlin {
     }
 }
 
+composeCompiler {
+    stabilityConfigurationFiles.add(
+        rootProject.layout.projectDirectory.file("compose_stability.conf"),
+    )
+}
+
 dependencies {
     implementation(projects.composeApp)
     implementation(libs.androidx.activity.compose)

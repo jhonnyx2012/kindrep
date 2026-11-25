@@ -3,14 +3,17 @@ package com.jhonnyb.kindrep
 import androidx.compose.ui.graphics.Color
 import com.jhonnyb.kindrep.data.repository.InMemoryOnboardingPreferencesRepository
 import com.jhonnyb.kindrep.dependencyinjection.applicationModule
-import com.jhonnyb.kindrep.domain.model.RoutineOverview
 import com.jhonnyb.kindrep.domain.service.AudioCueKeys
 import com.jhonnyb.kindrep.domain.service.AudioCueService
 import com.jhonnyb.kindrep.domain.service.MediaAssetLocator
 import com.jhonnyb.kindrep.navigation.TopLevelDestination
+import com.jhonnyb.kindrep.presentation.shell.ApplicationShellEffect
+import com.jhonnyb.kindrep.presentation.shell.ApplicationShellIntent
 import com.jhonnyb.kindrep.presentation.shell.ApplicationShellViewModel
 import com.jhonnyb.kindrep.ui.theme.SoftStoneD3Palette
 import com.jhonnyb.kindrep.ui.theme.WarmEarthPalette
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.test.runTest
 import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
 import kotlin.test.AfterTest
@@ -28,7 +31,7 @@ class KindrepArchitectureTest {
     }
 
     @Test
-    fun dependencyGraphResolvesDomainContractsAndViewModel() {
+    fun dependencyGraphResolvesMultiModuleContractsAndViewModel() {
         val koin = startKoin {
             modules(applicationModule)
         }.koin
@@ -39,7 +42,7 @@ class KindrepArchitectureTest {
     }
 
     @Test
-    fun applicationShellViewModelManagesOnboardingAndNavigationState() {
+    fun applicationShellViewModelProcessesIntentsAndEmitsEffectsUnidirectionally() = runTest {
         val triggeredCues = mutableListOf<String>()
         val fakeAudioCueService = object : AudioCueService {
             override fun playCue(cueKey: String) {
@@ -61,25 +64,34 @@ class KindrepArchitectureTest {
         assertFalse(viewModel.state.value.hasAcceptedDisclaimer)
         assertEquals(TopLevelDestination.TODAY, viewModel.state.value.selectedDestination)
 
-        viewModel.acceptDisclaimer()
-        viewModel.selectTopLevelDestination(TopLevelDestination.ROUTINES)
-        viewModel.setSafetyDialogVisible(true)
-        viewModel.triggerAudioCue(AudioCueKeys.SWITCH_SIDES)
-
+        viewModel.onIntent(ApplicationShellIntent.AcceptDisclaimer)
         assertTrue(viewModel.state.value.hasAcceptedDisclaimer)
+        assertEquals(
+            ApplicationShellEffect.NavigateToTodayAfterOnboarding,
+            viewModel.effects.first(),
+        )
+
+        viewModel.onIntent(
+            ApplicationShellIntent.SelectTopLevelDestination(TopLevelDestination.ROUTINES),
+        )
         assertEquals(TopLevelDestination.ROUTINES, viewModel.state.value.selectedDestination)
+        assertEquals(
+            ApplicationShellEffect.NavigateToTopLevelDestination(TopLevelDestination.ROUTINES),
+            viewModel.effects.first(),
+        )
+
+        viewModel.onIntent(ApplicationShellIntent.OpenSafetyDialog)
         assertTrue(viewModel.state.value.isSafetyDialogVisible)
-        assertEquals(listOf(AudioCueKeys.SWITCH_SIDES), triggeredCues)
-        assertFalse(viewModel.hasBundledVideo("bird_dog"))
-    }
 
-    @Test
-    fun routineOverviewCapsVisibleExercisesAtFour() {
-        val routine = RoutineOverview.sampleLowerBackRecovery()
+        viewModel.onIntent(ApplicationShellIntent.DismissSafetyDialog)
+        assertFalse(viewModel.state.value.isSafetyDialogVisible)
 
-        assertEquals(4, routine.visibleExercises.size)
-        assertEquals(1, routine.hiddenExerciseCount)
-        assertEquals("1 / 2", routine.dailyProgressBadge)
+        viewModel.onIntent(ApplicationShellIntent.StartSession("lower-back-recovery"))
+        assertEquals(listOf(AudioCueKeys.READY), triggeredCues)
+        assertEquals(
+            ApplicationShellEffect.NavigateToGuidedSession("lower-back-recovery"),
+            viewModel.effects.first(),
+        )
     }
 
     @Test

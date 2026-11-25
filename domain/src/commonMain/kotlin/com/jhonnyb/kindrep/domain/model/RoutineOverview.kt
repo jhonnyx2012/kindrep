@@ -18,9 +18,6 @@ data class RoutineOverview(
     val dailyProgressBadge: String
         get() = "$completedSessionsToday / $dailyTargetSessions"
 
-    val metadataSummary: String
-        get() = "${exercises.size} exercises · ~$estimatedMinutes min · ${breakDurationSeconds}s breaks"
-
     companion object {
         const val MAXIMUM_VISIBLE_EXERCISES: Int = 4
 

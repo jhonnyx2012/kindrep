@@ -69,57 +69,76 @@ private fun TodayHeaderRow(
     streakDayCount: Int,
     onOpenSafetyNotice: () -> Unit,
 ) {
-    val palette = LocalKindrepPalette.current
-
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Column {
-            Text(
-                text = stringResource(Res.string.today_greeting),
-                style = MaterialTheme.typography.bodyMedium,
-                color = palette.textMuted,
-            )
-            Text(
-                text = stringResource(Res.string.app_name),
-                style = MaterialTheme.typography.headlineLarge,
-                color = palette.textPrimary,
-            )
-        }
+        TodayGreetingTitleBlock()
         Row(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Box(
-                modifier = Modifier
-                    .clip(RoundedCornerShape(9.dp))
-                    .background(palette.secondarySoft)
-                    .padding(horizontal = 12.dp, vertical = 6.dp),
-            ) {
-                Text(
-                    text = stringResource(Res.string.today_streak_badge, streakDayCount),
-                    style = MaterialTheme.typography.labelMedium,
-                    color = palette.secondary,
-                )
-            }
-            Box(
-                modifier = Modifier
-                    .size(36.dp)
-                    .clip(CircleShape)
-                    .background(palette.surface)
-                    .border(1.dp, palette.border, CircleShape)
-                    .clickable(onClick = onOpenSafetyNotice),
-                contentAlignment = Alignment.Center,
-            ) {
-                Text(
-                    text = stringResource(Res.string.today_safety_button_label),
-                    style = MaterialTheme.typography.labelMedium,
-                    color = palette.textPrimary,
-                )
-            }
+            StreakBadge(streakDayCount = streakDayCount)
+            SafetyInformationButton(onClick = onOpenSafetyNotice)
         }
+    }
+}
+
+@Composable
+private fun TodayGreetingTitleBlock() {
+    val palette = LocalKindrepPalette.current
+
+    Column {
+        Text(
+            text = stringResource(Res.string.today_greeting),
+            style = MaterialTheme.typography.bodyMedium,
+            color = palette.textMuted,
+        )
+        Text(
+            text = stringResource(Res.string.app_name),
+            style = MaterialTheme.typography.headlineLarge,
+            color = palette.textPrimary,
+        )
+    }
+}
+
+@Composable
+private fun StreakBadge(streakDayCount: Int) {
+    val palette = LocalKindrepPalette.current
+
+    Box(
+        modifier = Modifier
+            .clip(RoundedCornerShape(9.dp))
+            .background(palette.secondarySoft)
+            .padding(horizontal = 12.dp, vertical = 6.dp),
+    ) {
+        Text(
+            text = stringResource(Res.string.today_streak_badge, streakDayCount),
+            style = MaterialTheme.typography.labelMedium,
+            color = palette.secondary,
+        )
+    }
+}
+
+@Composable
+private fun SafetyInformationButton(onClick: () -> Unit) {
+    val palette = LocalKindrepPalette.current
+
+    Box(
+        modifier = Modifier
+            .size(36.dp)
+            .clip(CircleShape)
+            .background(palette.surface)
+            .border(1.dp, palette.border, CircleShape)
+            .clickable(onClick = onClick),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            text = stringResource(Res.string.today_safety_button_label),
+            style = MaterialTheme.typography.labelMedium,
+            color = palette.textPrimary,
+        )
     }
 }
 

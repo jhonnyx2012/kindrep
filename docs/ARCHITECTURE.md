@@ -1,4 +1,4 @@
-# Kindrep — Product & Clean System Architecture
+# Kindrep — Product & Multi-Module System Architecture
 
 > [!IMPORTANT]
 > **Kindrep** (`com.jhonnyb.kindrep`) is a calm, local-first, cross-platform (**Android & iOS**) guided recovery exercise player for **any practitioner-prescribed plan** (physiotherapy, chiropractic, osteopathy, athletic therapy, sports rehabilitation, kinesiology) — built with **Kotlin Multiplatform** and **Compose Multiplatform**.
@@ -38,26 +38,32 @@
 
 ---
 
-## 3. Clean Architecture & Layer Boundaries
+## 3. Multi-Module Architecture & Model-View-Intent Data Flow
 
 ```mermaid
 flowchart TD
-    UI["User Interface Layer (Stateless Screens, Components, Dialogs)"] --> NAV["Navigation Host"]
-    NAV --> PRES["Presentation Layer (ViewModels + Immutable Screen States)"]
-    PRES --> DOM["Domain Layer (Entities, Use Cases, Repository & Service Contracts)"]
-    DATA["Data Layer (Room Persistence, DataStore Preferences, Seed Catalog)"] --> DOM
-    PLAT["Platform Layer (Android Media3/AudioManager, Apple AVFoundation/UIKit)"] --> DOM
-    UI --> EFFECTS["Platform Compose Effects (Looping Video, Wake Lock, Orientation)"]
+    ANDROID[":androidApp"] --> APP[":composeApp (Compose UI + Model-View-Intent ViewModels + Navigation + Platform)"]
+    IOS["iosApp (Xcode)"] --> APP
+    APP --> DOMAIN[":domain (Pure Kotlin Deeply-Immutable Models, Contracts, Use Cases)"]
+    APP --> DATA[":data (Repository Implementations, Room, DataStore, Seed Catalog)"]
+    DATA --> DOMAIN
 ```
 
-### Package Structure (`com.jhonnyb.kindrep`)
-- **`domain/`** — Pure Kotlin rich domain models (`RoutineOverview`, `ExerciseSummary`), repository contracts (`OnboardingPreferencesRepository`), and service contracts (`AudioCueService`, `MediaAssetLocator`). Zero framework or user interface imports.
-- **`data/`** — Repository implementations backed by local storage (Room, DataStore Preferences, bundled JSON catalog).
-- **`platform/`** — Single-responsibility `expect`/`actual` contracts and effects (`LoopingExerciseVideo`, `KeepScreenAwakeEffect`, `ScreenOrientationEffect`, `PlatformAudioCueService`, `PlatformMediaAssetLocator`).
-- **`presentation/`** — Feature ViewModels and immutable screen state classes (`ApplicationShellViewModel`, `ApplicationShellState`).
-- **`navigation/`** — Type-safe `@Serializable` destinations (`KindrepDestination`, `TopLevelDestination`) and `KindrepNavigationHost`.
-- **`ui/`** — Separated into `theme/`, `components/`, `dialogs/`, and `screens/<feature>/` — each file owning one cohesive responsibility and **one** `@Preview`.
-- **`dependencyinjection/`** — Koin dependency graph wiring interfaces to implementations.
+### Model-View-Intent Unidirectional Data Flow (`:composeApp` `presentation/`)
+
+```mermaid
+flowchart LR
+    SCREEN["Stateless Decomposed Screen"] -- "onIntent(Intent)" --> VIEWMODEL["Model-View-Intent ViewModel"]
+    VIEWMODEL -- "StateFlow&lt;State&gt;" --> SCREEN
+    VIEWMODEL -- "Flow&lt;Effect&gt; (One-Off Events)" --> HOST["Route / Navigation Collector"]
+    VIEWMODEL --> DOMAIN[":domain Use Cases & Contracts"]
+```
+
+### Modules & Responsibilities
+- **`:domain`** — Pure Kotlin deeply-immutable models (`RoutineOverview`, `ExerciseSummary`), repository contracts (`OnboardingPreferencesRepository`), use cases, and service contracts (`AudioCueService`, `MediaAssetLocator`). Stabilized across modules via `compose_stability.conf`.
+- **`:data`** — Repository implementations backed by local storage (Room, DataStore Preferences, bundled JSON catalog).
+- **`:composeApp`** — Hosts `presentation/` (`State` + `Intent` + `Effect` contracts and `ViewModel`s), `navigation/`, `platform/` (`expect`/`actual` native bridges), `dependencyinjection/` (Koin modules), and decomposed `ui/` (`theme/`, `components/`, `dialogs/`, `screens/`).
+- **`:androidApp` & `iosApp/`** — Thin native application shells hosting `KindrepRoot`.
 
 ---
 
