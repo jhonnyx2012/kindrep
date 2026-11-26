@@ -10,7 +10,7 @@
     <string name="welcome_title">Welcome to Kindrep</string>
     <string name="welcome_subtitle">Your calm companion for staying consistent with the recovery plan your practitioner prescribed.</string>
     <string name="welcome_disclaimer_heading">BEFORE YOU START</string>
-    <string name="welcome_disclaimer_point_no_prescription">• Kindrep doesn\'t prescribe exercises or replace your practitioner.</string>
+    <string name="welcome_disclaimer_point_no_prescription">• Kindrep doesn't prescribe exercises or replace your practitioner.</string>
     <string name="welcome_disclaimer_point_clinician_plan">• Add only the plan your physiotherapist, chiropractor, or clinician gave you.</string>
     <string name="welcome_disclaimer_point_stop_on_pain">• Stop right away if you feel sharp or worsening pain.</string>
     <string name="welcome_accept_button">I Understand · Build My Routine</string>
@@ -27,17 +27,114 @@
 
     <!-- Safety & About Dialog -->
     <string name="safety_dialog_title">Safety &amp; About Kindrep</string>
-    <string name="safety_dialog_point_no_prescription">• Kindrep doesn\'t prescribe exercises or replace a licensed physiotherapist, chiropractor, osteopath, or clinician.</string>
+    <string name="safety_dialog_point_no_prescription">• Kindrep doesn't prescribe exercises or replace a licensed physiotherapist, chiropractor, osteopath, or clinician.</string>
     <string name="safety_dialog_point_follow_plan">• Follow only the exercises, sets, and holds recommended for your recovery.</string>
     <string name="safety_dialog_point_stop_on_pain">• Stop immediately if you experience sharp, radiating, or worsening pain.</string>
     <string name="safety_dialog_confirm">Got it</string>
 
     <!-- Guided Session Player -->
-    <string name="player_sample_exercise_heading">Bird Dog · Left Side</string>
-    <string name="player_sample_repetition_counter">Rep 4 / 8</string>
-    <string name="player_exit_action">Exit</string>
-    <string name="player_preview_placeholder_note">Hands-free automatic pacer and landscape heads-up display arriving in Week 2.</string>
-    <string name="player_preview_finish_action">Preview Post-Session Check-In</string>
+    <string name="player_exit_action">×</string>
+    <string name="player_info_action">Info</string>
+    <string name="player_previous_action">Prev</string>
+    <string name="player_pause_action">Pause</string>
+    <string name="player_resume_action">Resume</string>
+    <string name="player_next_action">Next</string>
+    <string name="player_left_side">Left side</string>
+    <string name="player_right_side">Right side</string>
+    <string name="player_side_label_format">· %1$s</string>
+    <string name="player_reps_target_format">/ %1$d reps</string>
+    <string name="player_hold_seconds_suffix"> · %1$ds</string>
+    <string name="player_break_label">BREAK</string>
+    <string name="player_break_seconds_format">%1$ds</string>
+    <string name="player_up_next_badge">UP NEXT · %1$d OF %2$d</string>
+    <string name="player_break_meta_format">%1$d reps · %2$d sets</string>
+    <string name="player_break_meta_single_set_format">%1$d reps · 1 set</string>
+    <string name="player_session_remaining_format">%1$s left</string>
+    <string name="player_break_add_five_seconds">+5s</string>
+    <string name="player_break_skip_action">Skip Break →</string>
+    <string name="player_switch_sides_badge">HALFWAY · %1$s</string>
+    <string name="player_switch_sides_heading">Switch to %1$s</string>
+    <string name="player_switch_sides_countdown">Starting in %1$ds · %2$d reps to go</string>
+    <string name="player_switch_sides_start_action">Start %1$s →</string>
+    <string name="player_info_paused_badge">Timer Auto-Paused</string>
+    <string name="player_info_movement_label">MOVEMENT</string>
+    <string name="player_info_breathing_label">BREATHING</string>
+    <string name="player_info_safety_label">SAFETY · LISTEN TO YOUR BODY</string>
+    <string name="player_info_safety_body">Follow your practitioner's prescribed range and stop if you feel sharp or worsening pain.</string>
+    <string name="player_info_resume_action">Resume Exercise</string>
+
+    <!-- Exercise Catalog Copy -->
+    <string name="exercise_cat_cow_title">Cat-Cow</string>
+    <string name="exercise_cat_cow_steady_cue">Move slowly through a comfortable, pain-free spine range</string>
+    <string name="exercise_cat_cow_setup">Start on hands and knees with wrists under shoulders and knees under hips.</string>
+    <string name="exercise_cat_cow_breathing">Inhale gently as chest opens; exhale smoothly as your upper back rounds.</string>
+    <string name="exercise_cat_cow_phase_extend">Inhale · Cow</string>
+    <string name="exercise_cat_cow_phase_hold">Breathe</string>
+    <string name="exercise_cat_cow_phase_return">Exhale · Cat</string>
+
+    <string name="exercise_bird_dog_title">Bird Dog</string>
+    <string name="exercise_bird_dog_steady_cue">Keep hips level and ribs steady as opposite arm and leg reach</string>
+    <string name="exercise_bird_dog_setup">On hands and knees, brace your midsection lightly and keep pelvis level.</string>
+    <string name="exercise_bird_dog_breathing">Exhale calmly as you extend; inhale smoothly as you return to all fours.</string>
+    <string name="exercise_bird_dog_phase_extend">Reach long</string>
+    <string name="exercise_bird_dog_phase_hold">Hold steady</string>
+    <string name="exercise_bird_dog_phase_return">Return</string>
+
+    <string name="exercise_glute_bridge_title">Glute Bridge</string>
+    <string name="exercise_glute_bridge_steady_cue">Press evenly through both heels and lift without arching ribs</string>
+    <string name="exercise_glute_bridge_setup">Lie on your back with knees bent and feet flat, heels near your hips.</string>
+    <string name="exercise_glute_bridge_breathing">Exhale as you press hips up; inhale slowly as you lower segment by segment.</string>
+    <string name="exercise_glute_bridge_phase_extend">Lift hips</string>
+    <string name="exercise_glute_bridge_phase_hold">Hold squeeze</string>
+    <string name="exercise_glute_bridge_phase_return">Lower slowly</string>
+
+    <string name="exercise_dead_bug_title">Dead Bug</string>
+    <string name="exercise_dead_bug_steady_cue">Keep lower back resting softly against the mat on every reach</string>
+    <string name="exercise_dead_bug_setup">Lie on your back with arms straight up and knees bent 90° above hips.</string>
+    <string name="exercise_dead_bug_breathing">Exhale slowly as arm and opposite leg lower; inhale back to tabletop.</string>
+    <string name="exercise_dead_bug_phase_extend">Reach long</string>
+    <string name="exercise_dead_bug_phase_hold">Hover hold</string>
+    <string name="exercise_dead_bug_phase_return">Return</string>
+
+    <string name="exercise_childs_pose_title">Child's Pose</string>
+    <string name="exercise_childs_pose_steady_cue">Sink hips toward heels and breathe wide into your upper back</string>
+    <string name="exercise_childs_pose_setup">Kneel comfortably on the mat and prepare to fold hips gently back.</string>
+    <string name="exercise_childs_pose_breathing">Take slow, unhurried breaths into your back ribs while neck and shoulders soften.</string>
+    <string name="exercise_childs_pose_phase_extend">Sink back</string>
+    <string name="exercise_childs_pose_phase_hold">Breathe deeply</string>
+    <string name="exercise_childs_pose_phase_return">Ease up</string>
+
+    <string name="exercise_clamshell_title">Clamshell</string>
+    <string name="exercise_clamshell_steady_cue">Keep heels stacked together and hips steady without rolling back</string>
+    <string name="exercise_clamshell_setup">Lie on your side, bottom arm under head, knees bent forward, heels stacked.</string>
+    <string name="exercise_clamshell_breathing">Exhale as top knee opens; inhale calmly as you close with control.</string>
+    <string name="exercise_clamshell_phase_extend">Open knee</string>
+    <string name="exercise_clamshell_phase_hold">Hold</string>
+    <string name="exercise_clamshell_phase_return">Lower slowly</string>
+
+    <string name="exercise_wall_slide_title">Wall Slide</string>
+    <string name="exercise_wall_slide_steady_cue">Glide forearms smoothly along the wall before shoulders shrug</string>
+    <string name="exercise_wall_slide_setup">Stand tall with back against the wall, elbows bent at shoulder height.</string>
+    <string name="exercise_wall_slide_breathing">Exhale gently as arms glide upward; inhale smoothly as elbows draw down.</string>
+    <string name="exercise_wall_slide_phase_extend">Slide up</string>
+    <string name="exercise_wall_slide_phase_hold">Hold</string>
+    <string name="exercise_wall_slide_phase_return">Slide down</string>
+
+    <string name="exercise_chin_tuck_title">Chin Tuck</string>
+    <string name="exercise_chin_tuck_steady_cue">Keep eyes level and jaw relaxed as you lengthen the back of your neck</string>
+    <string name="exercise_chin_tuck_setup">Sit tall looking straight ahead with shoulders and jaw relaxed.</string>
+    <string name="exercise_chin_tuck_breathing">Breathe naturally while holding the gentle horizontal glide.</string>
+    <string name="exercise_chin_tuck_phase_extend">Glide back</string>
+    <string name="exercise_chin_tuck_phase_hold">Hold tall</string>
+    <string name="exercise_chin_tuck_phase_return">Release</string>
+
+    <string name="exercise_bulgarian_split_squat_title">Bulgarian Split Squat</string>
+    <string name="exercise_bulgarian_split_squat_steady_cue">Drop back knee straight down and drive smoothly through front heel</string>
+    <string name="exercise_bulgarian_split_squat_setup">Stand a stride ahead of a bench, resting your back foot behind you.</string>
+    <string name="exercise_bulgarian_split_squat_breathing">Inhale calmly on the way down; exhale as you press up through your front heel.</string>
+    <string name="exercise_bulgarian_split_squat_phase_extend">Lower slowly</string>
+    <string name="exercise_bulgarian_split_squat_phase_hold">Hold</string>
+    <string name="exercise_bulgarian_split_squat_phase_return">Press up</string>
 
     <!-- Post-Session Check-In -->
     <string name="check_in_title">Session Complete</string>

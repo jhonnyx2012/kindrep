@@ -1,6 +1,9 @@
 package com.jhonnyb.kindrep.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -18,6 +21,8 @@ import com.jhonnyb.kindrep.generated.resources.routines_subtitle
 import com.jhonnyb.kindrep.generated.resources.routines_title
 import com.jhonnyb.kindrep.platform.KeepScreenAwakeEffect
 import com.jhonnyb.kindrep.platform.PreferLandscapeOrientationEffect
+import com.jhonnyb.kindrep.presentation.player.GuidedSessionPlayerEffect
+import com.jhonnyb.kindrep.presentation.player.GuidedSessionPlayerViewModel
 import com.jhonnyb.kindrep.presentation.shell.ApplicationShellIntent
 import com.jhonnyb.kindrep.presentation.shell.ApplicationShellState
 import com.jhonnyb.kindrep.ui.components.MainNavigationScaffold
@@ -28,6 +33,7 @@ import com.jhonnyb.kindrep.ui.screens.player.GuidedSessionPlayerScreen
 import com.jhonnyb.kindrep.ui.screens.today.TodayHomeScreen
 import com.jhonnyb.kindrep.ui.screens.welcome.WelcomeDisclaimerScreen
 import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.viewmodel.koinViewModel
 
 private const val PREVIEW_SESSION_IDENTIFIER = "preview-session"
 
@@ -128,23 +134,36 @@ fun KindrepNavigationHost(
             )
         }
 
-        composable<KindrepDestination.GuidedSessionPlayer> { backStackEntry ->
-            val destination = backStackEntry.toRoute<KindrepDestination.GuidedSessionPlayer>()
+        composable<KindrepDestination.GuidedSessionPlayer> {
             PreferLandscapeOrientationEffect()
             KeepScreenAwakeEffect(enabled = true)
-            GuidedSessionPlayerScreen(
-                routineIdentifier = destination.routineIdentifier,
-                onFinishToCheckIn = {
-                    navigationController.navigate(
-                        KindrepDestination.PostSessionCheckIn(
-                            sessionIdentifier = PREVIEW_SESSION_IDENTIFIER,
-                            routineName = shellState.activeRoutine.name,
-                        ),
-                    ) {
-                        popUpTo(KindrepDestination.Today)
+            val playerViewModel: GuidedSessionPlayerViewModel = koinViewModel()
+            val playerState by playerViewModel.state.collectAsStateWithLifecycle()
+
+            LaunchedEffect(playerViewModel) {
+                playerViewModel.effects.collect { effect ->
+                    when (effect) {
+                        is GuidedSessionPlayerEffect.NavigateToPostSessionCheckIn -> {
+                            navigationController.navigate(
+                                KindrepDestination.PostSessionCheckIn(
+                                    sessionIdentifier = PREVIEW_SESSION_IDENTIFIER,
+                                    routineName = effect.routineName,
+                                ),
+                            ) {
+                                popUpTo(KindrepDestination.Today)
+                            }
+                        }
+
+                        GuidedSessionPlayerEffect.NavigateBack -> {
+                            navigationController.popBackStack()
+                        }
                     }
-                },
-                onExit = { navigationController.popBackStack() },
+                }
+            }
+
+            GuidedSessionPlayerScreen(
+                state = playerState,
+                onIntent = playerViewModel::onIntent,
             )
         }
 

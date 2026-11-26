@@ -3,6 +3,7 @@ package com.jhonnyb.kindrep.dependencyinjection
 import com.jhonnyb.kindrep.domain.repository.OnboardingPreferencesRepository
 import com.jhonnyb.kindrep.domain.service.AudioCueService
 import com.jhonnyb.kindrep.domain.service.MediaAssetLocator
+import com.jhonnyb.kindrep.presentation.player.GuidedSessionPlayerViewModel
 import com.jhonnyb.kindrep.presentation.shell.ApplicationShellViewModel
 import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
@@ -27,5 +28,6 @@ class DependencyInjectionGraphTest {
         assertNotNull(koin.get<AudioCueService>())
         assertNotNull(koin.get<MediaAssetLocator>())
         assertNotNull(koin.get<ApplicationShellViewModel>())
+        assertNotNull(koin.get<GuidedSessionPlayerViewModel>())
     }
 }

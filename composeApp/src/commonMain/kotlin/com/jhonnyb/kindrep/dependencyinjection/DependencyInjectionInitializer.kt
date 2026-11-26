@@ -6,6 +6,7 @@ import com.jhonnyb.kindrep.domain.service.AudioCueService
 import com.jhonnyb.kindrep.domain.service.MediaAssetLocator
 import com.jhonnyb.kindrep.platform.createPlatformAudioCueService
 import com.jhonnyb.kindrep.platform.createPlatformMediaAssetLocator
+import com.jhonnyb.kindrep.presentation.player.GuidedSessionPlayerViewModel
 import com.jhonnyb.kindrep.presentation.shell.ApplicationShellViewModel
 import org.koin.core.KoinApplication
 import org.koin.core.context.startKoin
@@ -18,6 +19,7 @@ val applicationModule = module {
     single<AudioCueService> { createPlatformAudioCueService() }
     single<MediaAssetLocator> { createPlatformMediaAssetLocator() }
     viewModel { ApplicationShellViewModel(get(), get()) }
+    viewModel { GuidedSessionPlayerViewModel(audioCueService = get()) }
 }
 
 private var activeKoinApplication: KoinApplication? = null
