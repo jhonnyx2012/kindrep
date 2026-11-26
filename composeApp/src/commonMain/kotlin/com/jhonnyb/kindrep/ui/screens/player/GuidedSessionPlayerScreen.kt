@@ -8,6 +8,8 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -70,6 +72,7 @@ import com.jhonnyb.kindrep.ui.animation.ExerciseCopyCatalog
 import com.jhonnyb.kindrep.ui.animation.ExerciseCopyResources
 import com.jhonnyb.kindrep.ui.components.ActiveDistanceModeHud
 import com.jhonnyb.kindrep.ui.components.AutoHidingTransportOverlay
+import com.jhonnyb.kindrep.ui.components.BetweenSetsRestBottomStrip
 import com.jhonnyb.kindrep.ui.components.ExerciseAnimationStage
 import com.jhonnyb.kindrep.ui.dialogs.ExerciseInfoSheetOverlay
 import com.jhonnyb.kindrep.ui.dialogs.SwitchSidesOverlayCard
@@ -189,7 +192,7 @@ fun GuidedSessionPlayerScreen(
             ),
     ) {
         MorphingAnimationStageContainer(
-            isBreakMode = state.mode == GuidedPlayerMode.BREAK,
+            isBreakMode = state.isUpNextBreak,
             mediaKey = activeExercise.mediaKey,
             peakHoldRatio = activeExercise.peakHoldRatio,
             activeSide = state.currentSide,
@@ -209,7 +212,7 @@ fun GuidedSessionPlayerScreen(
         )
 
         AnimatedVisibility(
-            visible = state.mode == GuidedPlayerMode.ACTIVE,
+            visible = state.mode == GuidedPlayerMode.ACTIVE || state.isBetweenSetsRest,
             enter = fadeIn(tween(300)),
             exit = fadeOut(tween(240)),
         ) {
@@ -218,6 +221,7 @@ fun GuidedSessionPlayerScreen(
                 exerciseCopy = exerciseCopy,
                 remainingSessionSeconds = state.remainingSessionSeconds(cycleProgressState.floatValue),
                 remainingActiveSideSeconds = state.remainingActiveSideSeconds(cycleProgressState.floatValue),
+                isBetweenSetsRest = state.isBetweenSetsRest,
             )
         }
 
@@ -230,7 +234,16 @@ fun GuidedSessionPlayerScreen(
         }
 
         AnimatedVisibility(
-            visible = state.mode == GuidedPlayerMode.BREAK,
+            visible = state.isBetweenSetsRest,
+            enter = fadeIn(tween(300)) + slideInVertically(tween(320, easing = FastOutSlowInEasing)) { it / 3 },
+            exit = fadeOut(tween(220)) + slideOutVertically(tween(220)) { it / 3 },
+            modifier = Modifier.align(Alignment.BottomCenter),
+        ) {
+            BetweenSetsRestBottomStrip(state = state, onIntent = onIntent)
+        }
+
+        AnimatedVisibility(
+            visible = state.isUpNextBreak,
             enter = fadeIn(tween(380, delayMillis = 120)),
             exit = fadeOut(tween(220)),
         ) {

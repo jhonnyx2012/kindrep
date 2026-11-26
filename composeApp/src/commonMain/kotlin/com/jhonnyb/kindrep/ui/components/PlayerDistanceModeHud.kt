@@ -5,6 +5,11 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -40,6 +45,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -49,6 +55,7 @@ import com.jhonnyb.kindrep.domain.model.ExercisePhase
 import com.jhonnyb.kindrep.domain.model.ExerciseSide
 import com.jhonnyb.kindrep.domain.model.RoutineOverview
 import com.jhonnyb.kindrep.generated.resources.Res
+import com.jhonnyb.kindrep.generated.resources.player_break_seconds_format
 import com.jhonnyb.kindrep.generated.resources.player_exit_action
 import com.jhonnyb.kindrep.generated.resources.player_hold_seconds_suffix
 import com.jhonnyb.kindrep.generated.resources.player_info_action
@@ -60,7 +67,7 @@ import com.jhonnyb.kindrep.generated.resources.player_reps_target_format
 import com.jhonnyb.kindrep.generated.resources.player_resume_action
 import com.jhonnyb.kindrep.generated.resources.player_right_side
 import com.jhonnyb.kindrep.generated.resources.player_session_remaining_format
-import com.jhonnyb.kindrep.generated.resources.player_side_label_format
+import com.jhonnyb.kindrep.generated.resources.player_set_pill_format
 import com.jhonnyb.kindrep.presentation.player.GuidedSessionPlayerIntent
 import com.jhonnyb.kindrep.presentation.player.GuidedSessionPlayerState
 import com.jhonnyb.kindrep.ui.animation.ExerciseChoreographyCatalog
@@ -77,7 +84,7 @@ private const val PHASE_DISSOLVE_OUT_MILLISECONDS = 750
 private const val REP_ODOMETER_IN_MILLISECONDS = 720
 private const val REP_ODOMETER_OUT_MILLISECONDS = 580
 private const val FINAL_COUNTDOWN_WINDOW_SECONDS = 3.0f
-private val FinalCountdownRingStroke = Stroke(width = 5.5f, cap = StrokeCap.Round)
+private val ExerciseCountdownRingStroke = Stroke(width = 5.0f, cap = StrokeCap.Round)
 
 @Composable
 fun ActiveDistanceModeHud(
@@ -85,9 +92,11 @@ fun ActiveDistanceModeHud(
     exerciseCopy: ExerciseCopyResources,
     remainingSessionSeconds: Int,
     remainingActiveSideSeconds: Float,
+    isBetweenSetsRest: Boolean = false,
     modifier: Modifier = Modifier,
 ) {
     val palette = LocalKindrepPalette.current
+    val totalActiveSideSeconds = state.currentExercise.singleSideDurationSeconds.toFloat().coerceAtLeast(1f)
     val sideName = stringResource(
         if (state.currentSide == ExerciseSide.LEFT) {
             Res.string.player_left_side
@@ -109,26 +118,14 @@ fun ActiveDistanceModeHud(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
-            Row(
+            Text(
+                text = stringResource(exerciseCopy.title),
+                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                color = palette.textPrimary,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.weight(1f),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(6.dp),
-            ) {
-                Text(
-                    text = stringResource(exerciseCopy.title),
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                    color = palette.textPrimary,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-                if (state.currentExercise.isBilateral) {
-                    Text(
-                        text = stringResource(Res.string.player_side_label_format, sideName),
-                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
-                        color = palette.secondary,
-                    )
-                }
-            }
+            )
             Text(
                 text = stringResource(
                     Res.string.player_session_remaining_format,
@@ -144,48 +141,99 @@ fun ActiveDistanceModeHud(
         }
 
         AnimatedVisibility(
-            visible = remainingActiveSideSeconds > 0.01f &&
-                remainingActiveSideSeconds <= FINAL_COUNTDOWN_WINDOW_SECONDS,
+            visible = !isBetweenSetsRest && remainingActiveSideSeconds > 0.01f,
             enter = fadeIn(tween(260)),
             exit = fadeOut(tween(220)),
             modifier = Modifier
                 .align(Alignment.TopEnd)
                 .padding(top = 42.dp),
         ) {
-            FinalThreeSecondClosingRing(
+            ExerciseCountdownRing(
                 remainingSeconds = remainingActiveSideSeconds,
+                totalDurationSeconds = totalActiveSideSeconds,
             )
         }
 
-        Row(
+        AnimatedVisibility(
+            visible = !isBetweenSetsRest,
+            enter = fadeIn(tween(260)),
+            exit = fadeOut(tween(220)),
             modifier = Modifier
                 .align(Alignment.BottomStart)
                 .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            Column(
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(4.dp),
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.Bottom,
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
             ) {
-                PhaseHeadlineRow(
-                    phase = state.currentPhase,
-                    phaseLabel = stringResource(exerciseCopy.phaseLabel(state.currentPhase)),
-                    remainingHoldSeconds = state.remainingHoldSeconds)
-                Text(
-                    text = stringResource(exerciseCopy.steadyFormCue),
-                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
-                    color = palette.textMuted,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.padding(start = 18.dp),
-                )
-            }
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(4.dp),
+                ) {
+                    PhaseHeadlineRow(
+                        phase = state.currentPhase,
+                        phaseLabel = stringResource(exerciseCopy.phaseLabel(state.currentPhase)),
+                        remainingHoldSeconds = state.remainingHoldSeconds,
+                    )
+                    Text(
+                        text = stringResource(exerciseCopy.steadyFormCue),
+                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
+                        color = palette.textMuted,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.padding(start = 18.dp),
+                    )
+                }
 
-            RepetitionCounterReadout(
-                currentRepetition = state.currentRepetition,
-                targetRepetitions = state.currentExercise.targetRepetitions,
-            )
+                Column(
+                    horizontalAlignment = Alignment.End,
+                    verticalArrangement = Arrangement.spacedBy(6.dp),
+                ) {
+                    if (state.currentExercise.isBilateral || state.currentExercise.sets > 1) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        ) {
+                            if (state.currentExercise.isBilateral) {
+                                Text(
+                                    text = sideName,
+                                    style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                                    color = palette.secondary,
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(50))
+                                        .background(palette.secondarySoft)
+                                        .padding(horizontal = 10.dp, vertical = 4.dp),
+                                )
+                            }
+                            if (state.currentExercise.sets > 1) {
+                                Text(
+                                    text = stringResource(
+                                        Res.string.player_set_pill_format,
+                                        state.currentSet,
+                                        state.currentExercise.sets,
+                                    ),
+                                    style = MaterialTheme.typography.labelMedium.copy(
+                                        fontWeight = FontWeight.Bold,
+                                        fontFeatureSettings = "tnum",
+                                    ),
+                                    color = palette.textPrimary,
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(50))
+                                        .background(palette.canvas.copy(alpha = 0.88f))
+                                        .border(1.dp, palette.border, RoundedCornerShape(50))
+                                        .padding(horizontal = 10.dp, vertical = 4.dp),
+                                )
+                            }
+                        }
+                    }
+
+                    RepetitionCounterReadout(
+                        currentRepetition = state.currentRepetition,
+                        targetRepetitions = state.currentExercise.targetRepetitions,
+                    )
+                }
+            }
         }
     }
 }
@@ -410,52 +458,119 @@ private fun RepetitionCounterReadout(
 }
 
 @Composable
-private fun FinalThreeSecondClosingRing(
+private fun ExerciseCountdownRing(
     remainingSeconds: Float,
+    totalDurationSeconds: Float,
     modifier: Modifier = Modifier,
 ) {
     val palette = LocalKindrepPalette.current
-    val clampedRemaining = remainingSeconds.coerceIn(0f, FINAL_COUNTDOWN_WINDOW_SECONDS)
-    val sweepFraction = clampedRemaining / FINAL_COUNTDOWN_WINDOW_SECONDS
-    val displayedSecond = ceil(clampedRemaining).toInt().coerceIn(1, 3)
+    val safeTotal = totalDurationSeconds.coerceAtLeast(1f)
+    val clampedRemaining = remainingSeconds.coerceIn(0f, safeTotal)
+    val isFinalThreeSeconds = clampedRemaining <= FINAL_COUNTDOWN_WINDOW_SECONDS
+    val sweepFraction = if (isFinalThreeSeconds) {
+        (clampedRemaining / FINAL_COUNTDOWN_WINDOW_SECONDS).coerceIn(0f, 1f)
+    } else {
+        (clampedRemaining / safeTotal).coerceIn(0f, 1f)
+    }
+    val displayedSecond = ceil(clampedRemaining).toInt().coerceAtLeast(1)
+
+    val ringScale by animateFloatAsState(
+        targetValue = if (isFinalThreeSeconds) 1.12f else 1.0f,
+        animationSpec = tween(durationMillis = 340, easing = FastOutSlowInEasing),
+        label = "ExerciseRingScale",
+    )
+    val arcColor by animateColorAsState(
+        targetValue = if (isFinalThreeSeconds) palette.secondary else palette.primary,
+        animationSpec = tween(durationMillis = 320),
+        label = "ExerciseRingArcColor",
+    )
+    val borderColor by animateColorAsState(
+        targetValue = if (isFinalThreeSeconds) palette.secondary else palette.border,
+        animationSpec = tween(durationMillis = 320),
+        label = "ExerciseRingBorderColor",
+    )
+    val digitColor by animateColorAsState(
+        targetValue = if (isFinalThreeSeconds) palette.secondary else palette.textPrimary,
+        animationSpec = tween(durationMillis = 320),
+        label = "ExerciseRingDigitColor",
+    )
+
+    val pulseProgress = if (isFinalThreeSeconds) {
+        val transition = rememberInfiniteTransition(label = "ExerciseRingFinishPulse")
+        transition.animateFloat(
+            initialValue = 0f,
+            targetValue = 1f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(durationMillis = 1_000, easing = FastOutSlowInEasing),
+                repeatMode = RepeatMode.Restart,
+            ),
+            label = "ExerciseRingPulseProgress",
+        ).value
+    } else {
+        0f
+    }
 
     Box(
         modifier = modifier
-            .size(66.dp)
-            .clip(CircleShape)
-            .background(palette.canvas.copy(alpha = 0.86f))
-            .border(1.dp, palette.border, CircleShape),
+            .size(62.dp)
+            .graphicsLayer {
+                scaleX = ringScale
+                scaleY = ringScale
+            },
         contentAlignment = Alignment.Center,
     ) {
-        Canvas(
+        if (isFinalThreeSeconds) {
+            Canvas(modifier = Modifier.fillMaxSize()) {
+                val baseRadius = size.minDimension / 2f
+                val pulseRadius = baseRadius + 10.dp.toPx() * pulseProgress
+                drawCircle(
+                    color = palette.secondary.copy(alpha = 0.36f * (1f - pulseProgress)),
+                    radius = pulseRadius,
+                )
+            }
+        }
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(5.dp),
+                .clip(CircleShape)
+                .background(palette.canvas.copy(alpha = 0.88f))
+                .border(1.dp, borderColor, CircleShape),
+            contentAlignment = Alignment.Center,
         ) {
-            drawArc(
-                color = palette.matFill,
-                startAngle = 0f,
-                sweepAngle = 360f,
-                useCenter = false,
-                style = FinalCountdownRingStroke,
-            )
-            drawArc(
-                color = palette.secondary,
-                startAngle = -90f,
-                sweepAngle = 360f * sweepFraction,
-                useCenter = false,
-                style = FinalCountdownRingStroke,
+            Canvas(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(4.dp),
+            ) {
+                drawArc(
+                    color = palette.matFill,
+                    startAngle = 0f,
+                    sweepAngle = 360f,
+                    useCenter = false,
+                    style = ExerciseCountdownRingStroke,
+                )
+                drawArc(
+                    color = arcColor,
+                    startAngle = -90f,
+                    sweepAngle = 360f * sweepFraction,
+                    useCenter = false,
+                    style = ExerciseCountdownRingStroke,
+                )
+            }
+            Text(
+                text = if (isFinalThreeSeconds) {
+                    displayedSecond.toString()
+                } else {
+                    stringResource(Res.string.player_break_seconds_format, displayedSecond)
+                },
+                style = MaterialTheme.typography.headlineSmall.copy(
+                    fontSize = if (isFinalThreeSeconds) 24.sp else 17.sp,
+                    fontWeight = FontWeight.Bold,
+                    fontFeatureSettings = "tnum",
+                ),
+                color = digitColor,
             )
         }
-        Text(
-            text = displayedSecond.toString(),
-            style = MaterialTheme.typography.headlineSmall.copy(
-                fontSize = 26.sp,
-                fontWeight = FontWeight.Bold,
-                fontFeatureSettings = "tnum",
-            ),
-            color = palette.textPrimary,
-        )
     }
 }
 

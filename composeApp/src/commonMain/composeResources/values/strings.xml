@@ -41,12 +41,15 @@
     <string name="player_next_action">Next</string>
     <string name="player_left_side">Left side</string>
     <string name="player_right_side">Right side</string>
-    <string name="player_side_label_format">· %1$s</string>
+    <string name="player_set_pill_format">Set %1$d of %2$d</string>
     <string name="player_reps_target_format">/ %1$d reps</string>
     <string name="player_hold_seconds_suffix"> · %1$ds</string>
     <string name="player_break_label">BREAK</string>
     <string name="player_break_seconds_format">%1$ds</string>
     <string name="player_up_next_badge">UP NEXT · %1$d OF %2$d</string>
+    <string name="player_between_sets_rest_title_format">Quick rest · Set %1$d of %2$d next</string>
+    <string name="player_between_sets_rest_subtitle">Stay in position — catch your breath</string>
+    <string name="player_between_sets_start_action_format">Start Set %1$d →</string>
     <string name="player_break_meta_format">%1$d reps · %2$d sets</string>
     <string name="player_break_meta_single_set_format">%1$d reps · 1 set</string>
     <string name="player_session_remaining_format">%1$s left</string>
@@ -65,12 +68,12 @@
 
     <!-- Exercise Catalog Copy -->
     <string name="exercise_cat_cow_title">Cat-Cow</string>
-    <string name="exercise_cat_cow_steady_cue">Move slowly through a comfortable, pain-free spine range</string>
-    <string name="exercise_cat_cow_setup">Start on hands and knees with wrists under shoulders and knees under hips.</string>
-    <string name="exercise_cat_cow_breathing">Inhale gently as chest opens; exhale smoothly as your upper back rounds.</string>
-    <string name="exercise_cat_cow_phase_extend">Inhale · Cow</string>
-    <string name="exercise_cat_cow_phase_hold">Breathe</string>
-    <string name="exercise_cat_cow_phase_return">Exhale · Cat</string>
+    <string name="exercise_cat_cow_steady_cue">Arch gently through your mid-back, hold, then round smoothly</string>
+    <string name="exercise_cat_cow_setup">Start on hands and knees in neutral; arch and lift chest, then tuck and round your back.</string>
+    <string name="exercise_cat_cow_breathing">Inhale gently as chest lifts; exhale smoothly as belly draws in and back rounds.</string>
+    <string name="exercise_cat_cow_phase_extend">Arch · Cow</string>
+    <string name="exercise_cat_cow_phase_hold">Hold</string>
+    <string name="exercise_cat_cow_phase_return">Round · Cat</string>
 
     <string name="exercise_bird_dog_title">Bird Dog</string>
     <string name="exercise_bird_dog_steady_cue">Keep hips level and ribs steady as opposite arm and leg reach</string>
@@ -81,12 +84,12 @@
     <string name="exercise_bird_dog_phase_return">Return</string>
 
     <string name="exercise_glute_bridge_title">Glute Bridge</string>
-    <string name="exercise_glute_bridge_steady_cue">Press evenly through both heels and lift without arching ribs</string>
-    <string name="exercise_glute_bridge_setup">Lie on your back with knees bent and feet flat, heels near your hips.</string>
-    <string name="exercise_glute_bridge_breathing">Exhale as you press hips up; inhale slowly as you lower segment by segment.</string>
-    <string name="exercise_glute_bridge_phase_extend">Lift hips</string>
-    <string name="exercise_glute_bridge_phase_hold">Hold squeeze</string>
-    <string name="exercise_glute_bridge_phase_return">Lower slowly</string>
+    <string name="exercise_glute_bridge_steady_cue">Tilt pelvis to flatten low back, peel up into bridge, and roll down slowly</string>
+    <string name="exercise_glute_bridge_setup">Lie on your back with knees bent, tilt pelvis to flatten low back, then peel spine up into bridge.</string>
+    <string name="exercise_glute_bridge_breathing">Exhale as you tilt and lift; inhale slowly as you lower one vertebra at a time.</string>
+    <string name="exercise_glute_bridge_phase_extend">Tilt &amp; lift</string>
+    <string name="exercise_glute_bridge_phase_hold">Hold bridge</string>
+    <string name="exercise_glute_bridge_phase_return">Roll down</string>
 
     <string name="exercise_dead_bug_title">Dead Bug</string>
     <string name="exercise_dead_bug_steady_cue">Keep lower back resting softly against the mat on every reach</string>
@@ -135,6 +138,166 @@
     <string name="exercise_bulgarian_split_squat_phase_extend">Lower slowly</string>
     <string name="exercise_bulgarian_split_squat_phase_hold">Hold</string>
     <string name="exercise_bulgarian_split_squat_phase_return">Press up</string>
+
+    <string name="exercise_knee_to_chest_title">Knee-to-Chest Stretch</string>
+    <string name="exercise_knee_to_chest_steady_cue">Draw one knee gently toward your chest while keeping shoulders relaxed</string>
+    <string name="exercise_knee_to_chest_setup">Lie on your back with both knees bent and feet flat on the mat.</string>
+    <string name="exercise_knee_to_chest_breathing">Exhale calmly as you hug the knee in; inhale as you lower your foot back down.</string>
+    <string name="exercise_knee_to_chest_phase_extend">Draw knee in</string>
+    <string name="exercise_knee_to_chest_phase_hold">Hold stretch</string>
+    <string name="exercise_knee_to_chest_phase_return">Lower foot</string>
+
+    <string name="exercise_heel_slides_title">Heel Slides</string>
+    <string name="exercise_heel_slides_steady_cue">Glide your heel smoothly along the mat within a comfortable knee bend</string>
+    <string name="exercise_heel_slides_setup">Lie on your back with one knee bent for support and the working leg straight.</string>
+    <string name="exercise_heel_slides_breathing">Breathe steadily as your heel slides smoothly toward your hip and back out.</string>
+    <string name="exercise_heel_slides_phase_extend">Slide heel in</string>
+    <string name="exercise_heel_slides_phase_hold">Gentle hold</string>
+    <string name="exercise_heel_slides_phase_return">Extend leg</string>
+
+    <string name="exercise_straight_leg_raise_title">Straight Leg Raise</string>
+    <string name="exercise_straight_leg_raise_steady_cue">Keep your working knee straight and lift smoothly to match the bent thigh</string>
+    <string name="exercise_straight_leg_raise_setup">Lie on your back with one knee bent and foot flat, working leg straight.</string>
+    <string name="exercise_straight_leg_raise_breathing">Exhale as you lift the straight leg; inhale slowly as you lower with control.</string>
+    <string name="exercise_straight_leg_raise_phase_extend">Lift leg</string>
+    <string name="exercise_straight_leg_raise_phase_hold">Hold steady</string>
+    <string name="exercise_straight_leg_raise_phase_return">Lower slowly</string>
+
+    <string name="exercise_prone_press_up_title">Prone Press-Up</string>
+    <string name="exercise_prone_press_up_steady_cue">Keep hips relaxed against the mat as your chest lifts comfortably</string>
+    <string name="exercise_prone_press_up_setup">Lie face-down with forearms resting comfortably beside your chest.</string>
+    <string name="exercise_prone_press_up_breathing">Inhale gently as you press up onto forearms; exhale softly as you lower.</string>
+    <string name="exercise_prone_press_up_phase_extend">Press up</string>
+    <string name="exercise_prone_press_up_phase_hold">Hold gently</string>
+    <string name="exercise_prone_press_up_phase_return">Lower down</string>
+
+    <string name="exercise_hip_flexor_stretch_title">Half-Kneeling Hip Flexor</string>
+    <string name="exercise_hip_flexor_stretch_steady_cue">Keep torso tall and glide hips gently forward without arching your back</string>
+    <string name="exercise_hip_flexor_stretch_setup">Kneel in a tall 90/90 lunge with front foot planted and back knee cushioned.</string>
+    <string name="exercise_hip_flexor_stretch_breathing">Exhale gently as hips shift forward; breathe calmly through the front-hip stretch.</string>
+    <string name="exercise_hip_flexor_stretch_phase_extend">Shift forward</string>
+    <string name="exercise_hip_flexor_stretch_phase_hold">Hold stretch</string>
+    <string name="exercise_hip_flexor_stretch_phase_return">Ease back</string>
+
+    <string name="exercise_modified_side_plank_title">Modified Side Plank</string>
+    <string name="exercise_modified_side_plank_steady_cue">Stack shoulder over elbow and lift hips into a steady diagonal line</string>
+    <string name="exercise_modified_side_plank_setup">Lie on your side propped on your forearm with knees bent and stacked.</string>
+    <string name="exercise_modified_side_plank_breathing">Exhale as hips lift off the mat; breathe steadily while holding your alignment.</string>
+    <string name="exercise_modified_side_plank_phase_extend">Lift hips</string>
+    <string name="exercise_modified_side_plank_phase_hold">Hold steady</string>
+    <string name="exercise_modified_side_plank_phase_return">Lower hips</string>
+
+    <string name="exercise_chair_sit_to_stand_title">Chair Sit-to-Stand</string>
+    <string name="exercise_chair_sit_to_stand_steady_cue">Press evenly through both heels to stand tall, then sit back with control</string>
+    <string name="exercise_chair_sit_to_stand_setup">Sit tall near the front edge of a sturdy chair with feet hip-width apart.</string>
+    <string name="exercise_chair_sit_to_stand_breathing">Exhale as you press up to standing; inhale smoothly as you lower back down.</string>
+    <string name="exercise_chair_sit_to_stand_phase_extend">Stand tall</string>
+    <string name="exercise_chair_sit_to_stand_phase_hold">Pause</string>
+    <string name="exercise_chair_sit_to_stand_phase_return">Sit slowly</string>
+
+    <string name="exercise_seated_knee_extension_title">Seated Knee Extension</string>
+    <string name="exercise_seated_knee_extension_steady_cue">Sit tall and straighten one leg smoothly without leaning backward</string>
+    <string name="exercise_seated_knee_extension_setup">Sit upright on a bench or chair with thighs supported and feet flat.</string>
+    <string name="exercise_seated_knee_extension_breathing">Exhale as you extend the knee; inhale smoothly as you lower your foot.</string>
+    <string name="exercise_seated_knee_extension_phase_extend">Extend knee</string>
+    <string name="exercise_seated_knee_extension_phase_hold">Hold straight</string>
+    <string name="exercise_seated_knee_extension_phase_return">Lower foot</string>
+
+    <string name="exercise_standing_calf_raise_title">Standing Calf Raise</string>
+    <string name="exercise_standing_calf_raise_steady_cue">Rise smoothly onto the balls of your feet and lower heels with control</string>
+    <string name="exercise_standing_calf_raise_setup">Stand tall facing a wall with fingertips resting lightly for balance.</string>
+    <string name="exercise_standing_calf_raise_breathing">Exhale as heels lift; inhale slowly as heels return all the way down.</string>
+    <string name="exercise_standing_calf_raise_phase_extend">Rise up</string>
+    <string name="exercise_standing_calf_raise_phase_hold">Hold top</string>
+    <string name="exercise_standing_calf_raise_phase_return">Lower slowly</string>
+
+    <string name="exercise_thoracic_open_book_title">Thoracic Open Book</string>
+    <string name="exercise_thoracic_open_book_steady_cue">Keep knees stacked on the mat as your upper chest and arm open smoothly</string>
+    <string name="exercise_thoracic_open_book_setup">Lie on your side with knees bent together and both arms reaching forward.</string>
+    <string name="exercise_thoracic_open_book_breathing">Inhale as you open your top arm wide; exhale smoothly as you close back together.</string>
+    <string name="exercise_thoracic_open_book_phase_extend">Open wide</string>
+    <string name="exercise_thoracic_open_book_phase_hold">Hold open</string>
+    <string name="exercise_thoracic_open_book_phase_return">Close slowly</string>
+
+    <string name="exercise_pelvic_tilt_title">Pelvic Tilt</string>
+    <string name="exercise_pelvic_tilt_steady_cue">Keep hips grounded as you gently flatten your lower back into the mat</string>
+    <string name="exercise_pelvic_tilt_setup">Lie on your back with knees bent, feet flat, and arms relaxed by your sides.</string>
+    <string name="exercise_pelvic_tilt_breathing">Exhale softly as your lower back flattens; inhale as you release to neutral.</string>
+    <string name="exercise_pelvic_tilt_phase_extend">Tilt &amp; flatten</string>
+    <string name="exercise_pelvic_tilt_phase_hold">Hold flat</string>
+    <string name="exercise_pelvic_tilt_phase_return">Release gently</string>
+
+    <string name="exercise_mcgill_curl_up_title">McGill Curl-Up</string>
+    <string name="exercise_mcgill_curl_up_steady_cue">Keep gaze on ceiling; lift head, shoulders, and elbows 1 to 2 inches</string>
+    <string name="exercise_mcgill_curl_up_setup">Lie on your back, one knee bent and one leg straight, both hands palm-down under your low back.</string>
+    <string name="exercise_mcgill_curl_up_breathing">Brace your core gently and breathe steadily while holding; lower smoothly and relax.</string>
+    <string name="exercise_mcgill_curl_up_phase_extend">Brace &amp; lift</string>
+    <string name="exercise_mcgill_curl_up_phase_hold">Hold steady</string>
+    <string name="exercise_mcgill_curl_up_phase_return">Lower &amp; relax</string>
+
+    <string name="exercise_hamstring_bridge_title">Hamstring Bridge</string>
+    <string name="exercise_hamstring_bridge_steady_cue">Dig heels into the floor with knees slightly bent and lift hips evenly</string>
+    <string name="exercise_hamstring_bridge_setup">Lie on your back with heels planted further forward and knees only slightly bent.</string>
+    <string name="exercise_hamstring_bridge_breathing">Exhale as you squeeze glutes and roll pelvis up; inhale as you lower smoothly.</string>
+    <string name="exercise_hamstring_bridge_phase_extend">Press &amp; lift</string>
+    <string name="exercise_hamstring_bridge_phase_hold">Hold bridge</string>
+    <string name="exercise_hamstring_bridge_phase_return">Lower slowly</string>
+
+    <string name="exercise_lying_leg_curl_title">Lying Leg Curl</string>
+    <string name="exercise_lying_leg_curl_steady_cue">Keep hips flat against the bench as heels curl smoothly toward glutes</string>
+    <string name="exercise_lying_leg_curl_setup">Lie face-down with legs straight and pad positioned comfortably near your ankles.</string>
+    <string name="exercise_lying_leg_curl_breathing">Exhale as you curl heels up; inhale slowly as you lower with control.</string>
+    <string name="exercise_lying_leg_curl_phase_extend">Curl heels</string>
+    <string name="exercise_lying_leg_curl_phase_hold">Hold top</string>
+    <string name="exercise_lying_leg_curl_phase_return">Lower slowly</string>
+
+    <string name="exercise_single_leg_hip_hinge_title">Single-Leg Hip Hinge</string>
+    <string name="exercise_single_leg_hip_hinge_steady_cue">Keep torso and back leg in one straight line as you hinge at the hip</string>
+    <string name="exercise_single_leg_hip_hinge_setup">Stand tall on one leg with core braced and opposite leg extended behind you.</string>
+    <string name="exercise_single_leg_hip_hinge_breathing">Inhale as you hinge forward smoothly; exhale as you return upright.</string>
+    <string name="exercise_single_leg_hip_hinge_phase_extend">Hinge forward</string>
+    <string name="exercise_single_leg_hip_hinge_phase_hold">Balance</string>
+    <string name="exercise_single_leg_hip_hinge_phase_return">Stand tall</string>
+
+    <string name="exercise_soleus_heel_raise_title">Single-Leg Bent-Knee Heel Raise</string>
+    <string name="exercise_soleus_heel_raise_steady_cue">Keep standing knee slightly bent as you rise onto toes and lower slowly</string>
+    <string name="exercise_soleus_heel_raise_setup">Stand on one leg behind a sturdy support with your standing knee slightly bent.</string>
+    <string name="exercise_soleus_heel_raise_breathing">Exhale as heel lifts; inhale slowly as you control the heel back to the floor.</string>
+    <string name="exercise_soleus_heel_raise_phase_extend">Rise up</string>
+    <string name="exercise_soleus_heel_raise_phase_hold">Hold top</string>
+    <string name="exercise_soleus_heel_raise_phase_return">Lower slowly</string>
+
+    <string name="exercise_wall_calf_stretch_title">Wall Calf Stretch</string>
+    <string name="exercise_wall_calf_stretch_steady_cue">Keep back leg straight and heel down as front knee bends toward wall</string>
+    <string name="exercise_wall_calf_stretch_setup">Place both hands on a wall with one foot stepped back and toes pointing straight ahead.</string>
+    <string name="exercise_wall_calf_stretch_breathing">Breathe calmly and evenly while holding the gentle mid-calf stretch.</string>
+    <string name="exercise_wall_calf_stretch_phase_extend">Lean forward</string>
+    <string name="exercise_wall_calf_stretch_phase_hold">Hold stretch</string>
+    <string name="exercise_wall_calf_stretch_phase_return">Ease back</string>
+
+    <string name="exercise_deadlift_hip_hinge_title">Deadlift Hip Hinge</string>
+    <string name="exercise_deadlift_hip_hinge_steady_cue">Keep your back flat and knees soft as hips hinge smoothly back</string>
+    <string name="exercise_deadlift_hip_hinge_setup">Stand tall with knees slightly bent, holding weights smoothly in front of thighs.</string>
+    <string name="exercise_deadlift_hip_hinge_breathing">Inhale as you hinge forward toward shins; exhale as glutes drive you upright.</string>
+    <string name="exercise_deadlift_hip_hinge_phase_extend">Hinge back</string>
+    <string name="exercise_deadlift_hip_hinge_phase_hold">Pause</string>
+    <string name="exercise_deadlift_hip_hinge_phase_return">Drive up</string>
+
+    <string name="exercise_piriformis_stretch_title">Piriformis Cross-Body Stretch</string>
+    <string name="exercise_piriformis_stretch_steady_cue">Draw knee gently toward opposite shoulder for a calm deep-glute stretch</string>
+    <string name="exercise_piriformis_stretch_setup">Lie on your back with one knee bent supporting the opposite ankle crossed over.</string>
+    <string name="exercise_piriformis_stretch_breathing">Take slow, relaxed breaths while holding the stretch without forcing range.</string>
+    <string name="exercise_piriformis_stretch_phase_extend">Draw gently</string>
+    <string name="exercise_piriformis_stretch_phase_hold">Hold stretch</string>
+    <string name="exercise_piriformis_stretch_phase_return">Release slowly</string>
+
+    <string name="exercise_seated_glute_release_title">Seated Figure-4 Glute Release</string>
+    <string name="exercise_seated_glute_release_steady_cue">Lean gently into the glute in figure-4 and breathe calmly over tender spots</string>
+    <string name="exercise_seated_glute_release_setup">Sit on the floor supported by your hands with one ankle crossed over the opposite knee.</string>
+    <string name="exercise_seated_glute_release_breathing">Breathe deeply and slowly while holding steady pressure on the target area.</string>
+    <string name="exercise_seated_glute_release_phase_extend">Lean gently</string>
+    <string name="exercise_seated_glute_release_phase_hold">Hold &amp; breathe</string>
+    <string name="exercise_seated_glute_release_phase_return">Ease off</string>
 
     <!-- Post-Session Check-In -->
     <string name="check_in_title">Session Complete</string>

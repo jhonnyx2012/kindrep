@@ -188,8 +188,8 @@ class GuidedSessionPlayerViewModelTest {
         // Default break is 10s
         assertEquals(10, initialState.breakDurationSeconds)
         // bilateralFirstExercise: 2*6s * 2 sides + 3s switch = 27s; unilateralSecond: 1*6s = 6s; 1 break = 10s -> 43s
-        assertEquals(27, bilateralFirstExercise.totalDurationSeconds)
-        assertEquals(6, unilateralSecondExercise.totalDurationSeconds)
+        assertEquals(27, bilateralFirstExercise.totalDurationSeconds(10))
+        assertEquals(6, unilateralSecondExercise.totalDurationSeconds(10))
         assertEquals(43, initialState.totalSessionDurationSeconds)
         assertEquals(43, initialState.remainingSessionSeconds(currentCycleProgress = 0f))
         assertEquals(0f, initialState.currentExerciseProgressFraction(currentCycleProgress = 0f), 0.001f)
@@ -201,5 +201,55 @@ class GuidedSessionPlayerViewModelTest {
         // Final 3 seconds of active side on Rep 2 (halfway through 6s rep)
         viewModel.onIntent(GuidedSessionPlayerIntent.CompleteRepetitionCycle)
         assertEquals(3f, viewModel.state.value.remainingActiveSideSeconds(currentCycleProgress = 0.5f), 0.01f)
+    }
+
+    @Test
+    fun multiSetExerciseEntersBetweenSetsBreakBeforeAdvancingToNextExercise() {
+        val multiSetExercise = unilateralSecondExercise.copy(
+            identifier = "ex-multi-set",
+            targetRepetitions = 2,
+            sets = 2,
+            repetitionPaceSeconds = 5.0f,
+        )
+        val viewModel = GuidedSessionPlayerViewModel(
+            audioCueService = FakeAudioCueService(),
+            exercises = listOf(multiSetExercise, unilateralSecondExercise),
+            breakDurationSeconds = 10,
+        )
+
+        // multiSetExercise: 2 sets * 10s + 10s between-set break = 30s; second exercise = 6s; between-exercise break = 10s -> 46s
+        assertEquals(30, multiSetExercise.totalDurationSeconds(10))
+        assertEquals(46, viewModel.state.value.totalSessionDurationSeconds)
+
+        // Complete Set 1 (2 reps) -> enters between-sets Break for Set 2 on same exercise
+        viewModel.onIntent(GuidedSessionPlayerIntent.CompleteRepetitionCycle)
+        viewModel.onIntent(GuidedSessionPlayerIntent.CompleteRepetitionCycle)
+
+        assertEquals(GuidedPlayerMode.BREAK, viewModel.state.value.mode)
+        assertTrue(viewModel.state.value.isBetweenSetsBreak)
+        assertTrue(viewModel.state.value.isBetweenSetsRest)
+        assertFalse(viewModel.state.value.isUpNextBreak)
+        assertEquals(0, viewModel.state.value.currentExerciseIndex)
+        assertEquals(2, viewModel.state.value.currentSet)
+        assertEquals(1, viewModel.state.value.currentRepetition)
+
+        // Skip between-sets Break -> Active Set 2
+        viewModel.onIntent(GuidedSessionPlayerIntent.SkipBreak)
+        assertEquals(GuidedPlayerMode.ACTIVE, viewModel.state.value.mode)
+        assertFalse(viewModel.state.value.isBetweenSetsBreak)
+        assertFalse(viewModel.state.value.isBetweenSetsRest)
+        assertFalse(viewModel.state.value.isUpNextBreak)
+        assertEquals(2, viewModel.state.value.currentSet)
+
+        // Complete Set 2 (2 reps) -> advances to Break for Exercise 2 with currentSet reset to 1
+        viewModel.onIntent(GuidedSessionPlayerIntent.CompleteRepetitionCycle)
+        viewModel.onIntent(GuidedSessionPlayerIntent.CompleteRepetitionCycle)
+
+        assertEquals(GuidedPlayerMode.BREAK, viewModel.state.value.mode)
+        assertFalse(viewModel.state.value.isBetweenSetsBreak)
+        assertFalse(viewModel.state.value.isBetweenSetsRest)
+        assertTrue(viewModel.state.value.isUpNextBreak)
+        assertEquals(1, viewModel.state.value.currentExerciseIndex)
+        assertEquals(1, viewModel.state.value.currentSet)
     }
 }

@@ -75,7 +75,10 @@ class GuidedSessionPlayerViewModel(
     private fun handlePreviousExercise() {
         val currentState = mutableState.value
         val previousIndex = (currentState.currentExerciseIndex - 1).coerceAtLeast(0)
-        if (previousIndex == currentState.currentExerciseIndex && currentState.currentRepetition == 1) {
+        if (previousIndex == currentState.currentExerciseIndex &&
+            currentState.currentSet == 1 &&
+            currentState.currentRepetition == 1
+        ) {
             return
         }
         resetPhaseThrottle()
@@ -84,7 +87,9 @@ class GuidedSessionPlayerViewModel(
                 currentExerciseIndex = previousIndex,
                 mode = GuidedPlayerMode.ACTIVE,
                 currentSide = ExerciseSide.LEFT,
+                currentSet = 1,
                 currentRepetition = 1,
+                isBetweenSetsBreak = false,
                 currentPhase = ExercisePhase.EXTEND,
                 remainingHoldSeconds = 0,
                 isInfoSheetVisible = false,
@@ -159,6 +164,7 @@ class GuidedSessionPlayerViewModel(
             it.copy(
                 mode = GuidedPlayerMode.ACTIVE,
                 currentRepetition = 1,
+                isBetweenSetsBreak = false,
                 currentPhase = ExercisePhase.EXTEND,
                 remainingHoldSeconds = 0,
                 isControlsVisible = false,
@@ -189,6 +195,11 @@ class GuidedSessionPlayerViewModel(
                     isControlsVisible = false,
                 )
             }
+            return
+        }
+
+        if (currentState.currentSet < activeExercise.sets) {
+            enterBetweenSetsBreak(nextSet = currentState.currentSet + 1)
             return
         }
 
@@ -249,6 +260,26 @@ class GuidedSessionPlayerViewModel(
         }
     }
 
+    private fun enterBetweenSetsBreak(nextSet: Int) {
+        audioCueService.playCue(AudioCueKeys.BREAK_START)
+        resetPhaseThrottle()
+        mutableState.update { currentState ->
+            currentState.copy(
+                mode = GuidedPlayerMode.BREAK,
+                currentSide = ExerciseSide.LEFT,
+                currentSet = nextSet,
+                currentRepetition = 1,
+                isBetweenSetsBreak = true,
+                totalBreakSeconds = currentState.breakDurationSeconds,
+                remainingBreakSeconds = currentState.breakDurationSeconds,
+                currentPhase = ExercisePhase.EXTEND,
+                remainingHoldSeconds = 0,
+                isInfoSheetVisible = false,
+                isControlsVisible = false,
+            )
+        }
+    }
+
     private fun enterBreakForExercise(nextIndex: Int) {
         audioCueService.playCue(AudioCueKeys.BREAK_START)
         resetPhaseThrottle()
@@ -257,7 +288,9 @@ class GuidedSessionPlayerViewModel(
                 currentExerciseIndex = nextIndex,
                 mode = GuidedPlayerMode.BREAK,
                 currentSide = ExerciseSide.LEFT,
+                currentSet = 1,
                 currentRepetition = 1,
+                isBetweenSetsBreak = false,
                 totalBreakSeconds = currentState.breakDurationSeconds,
                 remainingBreakSeconds = currentState.breakDurationSeconds,
                 currentPhase = ExercisePhase.EXTEND,

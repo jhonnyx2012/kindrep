@@ -26,6 +26,7 @@ Act as a **Staff Kotlin Multiplatform & Compose Multiplatform Architect** specia
 - **Multiplatform Build, Stability & Native Bridges:** [.agents/rules/kotlin-multiplatform-interoperability.md](.agents/rules/kotlin-multiplatform-interoperability.md) *(auto-loaded on build and platform files)*
 - **Domain Schema & Session State Machine:** [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
 - **Trello, Penpot & Continuous Integration Workflows:** `.agents/skills/project-sync/SKILL.md`
+- **Creating & Rigging New Compose Exercises:** `.agents/skills/create-exercise/SKILL.md`
 
 ## Verification Harness
 - **Windows PowerShell:** `powershell -ExecutionPolicy Bypass -File .\scripts\verify.ps1`

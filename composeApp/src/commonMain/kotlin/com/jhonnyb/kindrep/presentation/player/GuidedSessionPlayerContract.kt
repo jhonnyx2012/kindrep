@@ -18,7 +18,9 @@ data class GuidedSessionPlayerState(
     val currentExerciseIndex: Int = 0,
     val mode: GuidedPlayerMode = GuidedPlayerMode.ACTIVE,
     val currentSide: ExerciseSide = ExerciseSide.LEFT,
+    val currentSet: Int = 1,
     val currentRepetition: Int = 1,
+    val isBetweenSetsBreak: Boolean = false,
     val isPaused: Boolean = false,
     val isInfoSheetVisible: Boolean = false,
     val isControlsVisible: Boolean = true,
@@ -35,20 +37,45 @@ data class GuidedSessionPlayerState(
     val totalExercises: Int
         get() = exercises.size
 
+    val isBetweenSetsRest: Boolean
+        get() = mode == GuidedPlayerMode.BREAK && isBetweenSetsBreak
+
+    val isUpNextBreak: Boolean
+        get() = mode == GuidedPlayerMode.BREAK && !isBetweenSetsBreak
+
     val totalSessionDurationSeconds: Int
-        get() = exercises.sumOf { it.totalDurationSeconds } +
+        get() = exercises.sumOf { it.totalDurationSeconds(breakDurationSeconds) } +
             (exercises.size - 1).coerceAtLeast(0) * breakDurationSeconds
 
     fun remainingSessionSeconds(currentCycleProgress: Float): Int {
         val futureExercisesSeconds = exercises
             .drop(currentExerciseIndex + 1)
-            .sumOf { it.totalDurationSeconds }
-        val futureBreaksCount = (exercises.size - 1 - currentExerciseIndex).coerceAtLeast(0)
-        val futureBreaksSeconds = futureBreaksCount * breakDurationSeconds
+            .sumOf { it.totalDurationSeconds(breakDurationSeconds) }
+        val futureExerciseBreaksCount = (exercises.size - 1 - currentExerciseIndex).coerceAtLeast(0)
+        val futureExerciseBreaksSeconds = futureExerciseBreaksCount * breakDurationSeconds
+
+        val safeTotalSets = currentExercise.sets.coerceAtLeast(1)
+        val remainingSetsAfterCurrent = (safeTotalSets - currentSet).coerceAtLeast(0)
+        val futureSetsInCurrentExerciseSeconds = remainingSetsAfterCurrent *
+            (currentExercise.singleSetDurationSeconds + breakDurationSeconds)
 
         val currentExerciseRemainingSeconds = when (mode) {
-            GuidedPlayerMode.BREAK -> remainingBreakSeconds + currentExercise.totalDurationSeconds
-            GuidedPlayerMode.SWITCH_SIDES -> remainingSwitchSidesSeconds + currentExercise.singleSideDurationSeconds
+            GuidedPlayerMode.BREAK -> {
+                if (isBetweenSetsBreak) {
+                    remainingBreakSeconds +
+                        currentExercise.singleSetDurationSeconds +
+                        futureSetsInCurrentExerciseSeconds
+                } else {
+                    remainingBreakSeconds + currentExercise.totalDurationSeconds(breakDurationSeconds)
+                }
+            }
+
+            GuidedPlayerMode.SWITCH_SIDES -> {
+                remainingSwitchSidesSeconds +
+                    currentExercise.singleSideDurationSeconds +
+                    futureSetsInCurrentExerciseSeconds
+            }
+
             GuidedPlayerMode.ACTIVE -> {
                 val activeSideDuration = currentExercise.singleSideDurationSeconds
                 val completedRepsInSide = (currentRepetition - 1).coerceAtLeast(0)
@@ -61,10 +88,13 @@ data class GuidedSessionPlayerState(
                 } else {
                     0
                 }
-                kotlin.math.ceil(remainingInCurrentSide).toInt() + secondSideAndSwitch
+                kotlin.math.ceil(remainingInCurrentSide).toInt() +
+                    secondSideAndSwitch +
+                    futureSetsInCurrentExerciseSeconds
             }
         }
-        return (currentExerciseRemainingSeconds + futureExercisesSeconds + futureBreaksSeconds).coerceAtLeast(0)
+        return (currentExerciseRemainingSeconds + futureExercisesSeconds + futureExerciseBreaksSeconds)
+            .coerceAtLeast(0)
     }
 
     fun remainingActiveSideSeconds(currentCycleProgress: Float): Float {
@@ -77,26 +107,41 @@ data class GuidedSessionPlayerState(
     }
 
     fun currentExerciseProgressFraction(currentCycleProgress: Float): Float {
-        if (mode == GuidedPlayerMode.BREAK) return 0f
-        val total = currentExercise.totalDurationSeconds.coerceAtLeast(1).toFloat()
+        val total = currentExercise.totalDurationSeconds(breakDurationSeconds).coerceAtLeast(1).toFloat()
+        val singleSetDuration = currentExercise.singleSetDurationSeconds.toFloat()
         val activeSideDuration = currentExercise.singleSideDurationSeconds.toFloat()
+        val completedSetsCount = (currentSet - 1).coerceAtLeast(0)
+
         val elapsed = when (mode) {
+            GuidedPlayerMode.BREAK -> {
+                if (isBetweenSetsBreak) {
+                    val elapsedBreak = (totalBreakSeconds - remainingBreakSeconds).coerceAtLeast(0)
+                    completedSetsCount * singleSetDuration +
+                        (completedSetsCount - 1).coerceAtLeast(0) * breakDurationSeconds +
+                        elapsedBreak
+                } else {
+                    0f
+                }
+            }
+
             GuidedPlayerMode.SWITCH_SIDES -> {
-                activeSideDuration + (SWITCH_SIDES_DURATION_SECONDS - remainingSwitchSidesSeconds)
+                val priorSetsElapsed = completedSetsCount * (singleSetDuration + breakDurationSeconds)
+                priorSetsElapsed + activeSideDuration +
+                    (SWITCH_SIDES_DURATION_SECONDS - remainingSwitchSidesSeconds)
             }
 
             GuidedPlayerMode.ACTIVE -> {
+                val priorSetsElapsed = completedSetsCount * (singleSetDuration + breakDurationSeconds)
                 val priorSideOffset = if (currentExercise.isBilateral && currentSide == ExerciseSide.RIGHT) {
                     activeSideDuration + SWITCH_SIDES_DURATION_SECONDS
                 } else {
                     0f
                 }
                 val completedReps = (currentRepetition - 1).coerceAtLeast(0)
-                priorSideOffset + (completedReps + currentCycleProgress.coerceIn(0f, 1f)) *
+                priorSetsElapsed + priorSideOffset +
+                    (completedReps + currentCycleProgress.coerceIn(0f, 1f)) *
                     currentExercise.repetitionPaceSeconds
             }
-
-            GuidedPlayerMode.BREAK -> 0f
         }
         return (elapsed / total).coerceIn(0f, 1f)
     }

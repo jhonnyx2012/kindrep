@@ -135,4 +135,75 @@ class ExercisePoseEvaluatorTest {
         assertEquals(birdDogBounds.width, floorEnvelope.first, 0.01f)
         assertEquals(birdDogBounds.height, floorEnvelope.second, 0.01f)
     }
+
+    @Test
+    fun lockNeutralNeckKeepsHeadInlineWithSpineAcrossHipHinge() {
+        val restStanding = quadrupedBase.copy(
+            head = JointPoint(154f, 32f),
+            shoulder = JointPoint(154f, 54f),
+            spineControl = JointPoint(154f, 74f),
+            hip = JointPoint(154f, 94f),
+        )
+        val peakHinge = restStanding.copy(
+            head = JointPoint(202f, 72f),
+            shoulder = JointPoint(182f, 82f),
+            spineControl = JointPoint(160f, 91f),
+            hip = JointPoint(138f, 98f),
+        )
+        val hingeSpec = birdDogSpec.copy(
+            mediaKey = "deadlift_hip_hinge",
+            scaleGroup = ExerciseScaleGroup.VERTICAL,
+            bilateralMode = ExerciseBilateralMode.NONE,
+            stageProp = ExerciseStageProp.DUMBBELLS,
+            restPose = restStanding,
+            peakPose = peakHinge,
+            lockNeutralNeck = true,
+        )
+
+        val midHinge = ExercisePoseEvaluator.evaluateFrame(
+            spec = hingeSpec,
+            cycleProgress = 0.2f,
+            peakHoldRatio = 0.30f,
+            activeSide = ExerciseSide.LEFT,
+        ).pose
+
+        val spineDx = midHinge.shoulder.x - midHinge.hip.x
+        val spineDy = midHinge.shoulder.y - midHinge.hip.y
+        val neckDx = midHinge.head.x - midHinge.shoulder.x
+        val neckDy = midHinge.head.y - midHinge.shoulder.y
+        val crossProduct = abs(spineDx * neckDy - spineDy * neckDx)
+        assertTrue(crossProduct < 0.1f)
+        assertEquals(22f, hypot(neckDx, neckDy), 0.1f)
+    }
+
+    @Test
+    fun plantedFootRemainsAnchoredWhileHeelPivotsUpward() {
+        val restRaise = quadrupedBase.copy(
+            nearAnkle = JointPoint(158f, 153.5f),
+            nearFoot = JointPoint(147.5f, 155.5f),
+        )
+        val peakRaise = restRaise.copy(
+            nearAnkle = JointPoint(154f, 143.5f),
+            nearFoot = JointPoint(147.5f, 155.5f),
+        )
+        val raiseSpec = birdDogSpec.copy(
+            mediaKey = "soleus_heel_raise",
+            scaleGroup = ExerciseScaleGroup.VERTICAL,
+            bilateralMode = ExerciseBilateralMode.NONE,
+            stageProp = ExerciseStageProp.WALL_LEFT,
+            restPose = restRaise,
+            peakPose = peakRaise,
+        )
+
+        val midRaise = ExercisePoseEvaluator.evaluateFrame(
+            spec = raiseSpec,
+            cycleProgress = 0.2f,
+            peakHoldRatio = 0.30f,
+            activeSide = ExerciseSide.LEFT,
+        ).pose
+
+        assertEquals(147.5f, midRaise.nearFoot.x, 0.01f)
+        assertEquals(155.5f, midRaise.nearFoot.y, 0.01f)
+        assertTrue(midRaise.nearAnkle.y < restRaise.nearAnkle.y)
+    }
 }

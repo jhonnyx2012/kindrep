@@ -25,9 +25,12 @@ enum class ExerciseBilateralMode {
 enum class ExerciseStageProp {
     FLOOR_MAT,
     PERSPECTIVE_MAT,
+    PERSPECTIVE_BALL,
+    ISOMETRIC_CORNER_MAT,
     WALL_LEFT,
     BENCH_SEATED,
     BENCH_REAR,
+    DUMBBELLS,
 }
 
 enum class ExerciseBodyPart {
@@ -65,6 +68,8 @@ data class BodyPose(
     val nearAnkle: JointPoint,
     val farKnee: JointPoint,
     val farAnkle: JointPoint,
+    val nearFoot: JointPoint = JointPoint(nearAnkle.x - DEFAULT_FOOT_LENGTH, nearAnkle.y + 1.5f),
+    val farFoot: JointPoint = JointPoint(farAnkle.x - DEFAULT_FOOT_LENGTH, farAnkle.y + 1.5f),
 ) {
     fun swappedNearAndFar(): BodyPose = copy(
         nearElbow = farElbow,
@@ -75,7 +80,13 @@ data class BodyPose(
         nearAnkle = farAnkle,
         farKnee = nearKnee,
         farAnkle = nearAnkle,
+        nearFoot = farFoot,
+        farFoot = nearFoot,
     )
+
+    companion object {
+        const val DEFAULT_FOOT_LENGTH: Float = 10.5f
+    }
 }
 
 data class ExerciseAnimationSpec(
@@ -87,6 +98,7 @@ data class ExerciseAnimationSpec(
     val restPose: BodyPose,
     val peakPose: BodyPose,
     val activeBodyParts: Set<ExerciseBodyPart>,
+    val lockNeutralNeck: Boolean = false,
 )
 
 data class StageBoundingBox(
@@ -120,12 +132,17 @@ data class GuidedExerciseItem(
     val singleSideDurationSeconds: Int
         get() = kotlin.math.ceil(targetRepetitions * repetitionPaceSeconds).toInt().coerceAtLeast(1)
 
-    val totalDurationSeconds: Int
+    val singleSetDurationSeconds: Int
         get() = if (isBilateral) {
             singleSideDurationSeconds * 2 + SWITCH_SIDES_TRANSITION_SECONDS
         } else {
             singleSideDurationSeconds
         }
+
+    fun totalDurationSeconds(betweenSetBreakSeconds: Int = 0): Int {
+        val safeSets = sets.coerceAtLeast(1)
+        return singleSetDurationSeconds * safeSets + (safeSets - 1) * betweenSetBreakSeconds.coerceAtLeast(0)
+    }
 
     companion object {
         const val SWITCH_SIDES_TRANSITION_SECONDS: Int = 3

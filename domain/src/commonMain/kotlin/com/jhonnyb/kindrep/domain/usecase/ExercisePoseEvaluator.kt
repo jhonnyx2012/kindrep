@@ -85,20 +85,48 @@ object ExercisePoseEvaluator {
             0f
         }
 
-        val head = lerpPoint(startPose.head, endPose.head, lift)
-        val shoulder = lerpPoint(startPose.shoulder, endPose.shoulder, lift)
-        val rawSpineControl = lerpPoint(startPose.spineControl, endPose.spineControl, lift)
         val rawHip = lerpPoint(startPose.hip, endPose.hip, lift)
-
+        val hip = if (spec.breathTarget == ExerciseBreathTarget.HIP) {
+            rawHip.copy(y = rawHip.y - breathOffset * 0.7f)
+        } else {
+            rawHip
+        }
+        val shoulder = if (spec.lockNeutralNeck) {
+            polarArcStep(
+                currentParent = hip,
+                startParent = startPose.hip,
+                startChild = startPose.shoulder,
+                endParent = endPose.hip,
+                endChild = endPose.shoulder,
+                fraction = lift,
+            )
+        } else {
+            lerpPoint(startPose.shoulder, endPose.shoulder, lift)
+        }
+        val rawSpineControl = if (spec.lockNeutralNeck) {
+            JointPoint(
+                x = (hip.x + shoulder.x) * 0.5f,
+                y = (hip.y + shoulder.y) * 0.5f,
+            )
+        } else {
+            lerpPoint(startPose.spineControl, endPose.spineControl, lift)
+        }
         val spineControl = if (spec.breathTarget == ExerciseBreathTarget.SPINE) {
             rawSpineControl.copy(y = rawSpineControl.y + breathOffset)
         } else {
             rawSpineControl
         }
-        val hip = if (spec.breathTarget == ExerciseBreathTarget.HIP) {
-            rawHip.copy(y = rawHip.y - breathOffset * 0.7f)
+        val head = if (spec.lockNeutralNeck) {
+            val spineDx = shoulder.x - hip.x
+            val spineDy = shoulder.y - hip.y
+            val spineLength = hypot(spineDx, spineDy).coerceAtLeast(0.001f)
+            val neckLength = distance(startPose.shoulder, startPose.head)
+            JointPoint(
+                x = shoulder.x + (spineDx / spineLength) * neckLength,
+                y = shoulder.y + (spineDy / spineLength) * neckLength,
+            )
         } else {
-            rawHip
+            lerpPoint(startPose.head, endPose.head, lift)
         }
 
         val farArm = interpolateTwoBoneChain(
@@ -142,6 +170,23 @@ object ExercisePoseEvaluator {
             fraction = lift,
         )
 
+        val farFoot = interpolateFoot(
+            currentAnkle = farLeg.second,
+            startAnkle = startPose.farAnkle,
+            startFoot = startPose.farFoot,
+            endAnkle = endPose.farAnkle,
+            endFoot = endPose.farFoot,
+            fraction = lift,
+        )
+        val nearFoot = interpolateFoot(
+            currentAnkle = nearLeg.second,
+            startAnkle = startPose.nearAnkle,
+            startFoot = startPose.nearFoot,
+            endAnkle = endPose.nearAnkle,
+            endFoot = endPose.nearFoot,
+            fraction = lift,
+        )
+
         return EvaluatedExerciseFrame(
             pose = BodyPose(
                 head = head,
@@ -156,6 +201,8 @@ object ExercisePoseEvaluator {
                 nearAnkle = nearLeg.second,
                 farKnee = farLeg.first,
                 farAnkle = farLeg.second,
+                nearFoot = nearFoot,
+                farFoot = farFoot,
             ),
             activeBodyParts = activeParts,
             phase = phase,
@@ -202,8 +249,10 @@ object ExercisePoseEvaluator {
                 include(pose.farWrist.x, pose.farWrist.y, LIMB_BOUNDING_RADIUS)
                 include(pose.nearKnee.x, pose.nearKnee.y, LIMB_BOUNDING_RADIUS)
                 include(pose.nearAnkle.x, pose.nearAnkle.y, LIMB_BOUNDING_RADIUS)
+                include(pose.nearFoot.x, pose.nearFoot.y, 4.5f)
                 include(pose.farKnee.x, pose.farKnee.y, LIMB_BOUNDING_RADIUS)
                 include(pose.farAnkle.x, pose.farAnkle.y, LIMB_BOUNDING_RADIUS)
+                include(pose.farFoot.x, pose.farFoot.y, 4.5f)
 
                 for (spineStep in 1..3) {
                     val fraction = spineStep / 4f
@@ -220,15 +269,24 @@ object ExercisePoseEvaluator {
         }
 
         when (spec.stageProp) {
-            ExerciseStageProp.PERSPECTIVE_MAT -> {
+            ExerciseStageProp.PERSPECTIVE_MAT,
+            ExerciseStageProp.PERSPECTIVE_BALL,
+            -> {
                 minimumY = min(minimumY, 96f)
                 maximumY = max(maximumY, 168f)
                 minimumX -= 6f
                 maximumX += 6f
             }
 
+            ExerciseStageProp.ISOMETRIC_CORNER_MAT -> {
+                minimumX = min(minimumX, 50f)
+                maximumX = max(maximumX, 268f)
+                minimumY = min(minimumY, 72f)
+                maximumY = max(maximumY, 178f)
+            }
+
             ExerciseStageProp.WALL_LEFT -> {
-                minimumX = min(minimumX, 119f)
+                minimumX = min(minimumX, 94f)
                 maximumY = max(maximumY, FLOOR_MAT_BASELINE_Y + 7f)
             }
 
@@ -242,7 +300,9 @@ object ExercisePoseEvaluator {
                 maximumY = max(maximumY, FLOOR_MAT_BASELINE_Y + 7f)
             }
 
-            ExerciseStageProp.FLOOR_MAT -> {
+            ExerciseStageProp.FLOOR_MAT,
+            ExerciseStageProp.DUMBBELLS,
+            -> {
                 maximumY = max(maximumY, FLOOR_MAT_BASELINE_Y + 7f)
             }
         }
@@ -269,6 +329,27 @@ object ExercisePoseEvaluator {
             }
             maxWidth to maxHeight
         }
+    }
+
+    private fun interpolateFoot(
+        currentAnkle: JointPoint,
+        startAnkle: JointPoint,
+        startFoot: JointPoint,
+        endAnkle: JointPoint,
+        endFoot: JointPoint,
+        fraction: Float,
+    ): JointPoint {
+        if (distance(startFoot, endFoot) < PLANTED_DISTAL_THRESHOLD) {
+            return lerpPoint(startFoot, endFoot, fraction)
+        }
+        return polarArcStep(
+            currentParent = currentAnkle,
+            startParent = startAnkle,
+            startChild = startFoot,
+            endParent = endAnkle,
+            endChild = endFoot,
+            fraction = fraction,
+        )
     }
 
     private fun interpolateTwoBoneChain(
